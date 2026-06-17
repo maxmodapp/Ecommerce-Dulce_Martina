@@ -1,0 +1,103 @@
+"use client"
+
+import { useState, useMemo } from "react"
+import { ProductCard } from "@/components/product-card"
+import { ProductFilters } from "@/components/product-filters"
+import type { Product, Category } from "@/lib/types"
+
+interface ProductsGridProps {
+  products: Product[]
+  fixedCategory?: Category
+}
+
+export function ProductsGrid({ products, fixedCategory }: ProductsGridProps) {
+  const [search, setSearch] = useState("")
+  const [category, setCategory] = useState<string>(fixedCategory || "all")
+  const [sort, setSort] = useState("newest")
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([])
+
+  const filtered = useMemo(() => {
+    let result = [...products]
+
+    // Category
+    if (category !== "all") {
+      result = result.filter((p) => p.category === category)
+    }
+
+    // Search
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      result = result.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q)
+      )
+    }
+
+    // Sizes
+    if (selectedSizes.length > 0) {
+      result = result.filter((p) =>
+        selectedSizes.some((s) => p.sizes.includes(s))
+      )
+    }
+
+    // Sort
+    switch (sort) {
+      case "price-asc":
+        result.sort((a, b) => a.price - b.price)
+        break
+      case "price-desc":
+        result.sort((a, b) => b.price - a.price)
+        break
+      case "newest":
+      default:
+        result.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+    }
+
+    return result
+  }, [products, search, category, sort, selectedSizes])
+
+  return (
+    <div className="flex flex-col gap-6">
+      <ProductFilters
+        search={search}
+        onSearchChange={setSearch}
+        category={category}
+        onCategoryChange={setCategory}
+        sort={sort}
+        onSortChange={setSort}
+        selectedSizes={selectedSizes}
+        onSizesChange={setSelectedSizes}
+        resultCount={filtered.length}
+        hideCategory={!!fixedCategory}
+      />
+
+      {filtered.length === 0 ? (
+        <div className="py-16 text-center">
+          <p className="text-lg text-muted-foreground">
+            No encontramos productos con esos filtros.
+          </p>
+          <button
+            onClick={() => {
+              setSearch("")
+              setCategory(fixedCategory || "all")
+              setSelectedSizes([])
+            }}
+            className="mt-3 text-sm font-medium text-primary hover:text-foreground transition-colors"
+          >
+            Limpiar filtros
+          </button>
+        </div>
+      ) : (
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {filtered.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}

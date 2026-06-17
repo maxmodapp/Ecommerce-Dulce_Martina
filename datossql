@@ -1,0 +1,167 @@
+-- =========================
+-- SEED: CATALOGO (limpia y carga de ejemplo)
+-- =========================
+
+-- 1) Limpiar catálogo (orden importa por FKs)
+delete from orden_productos;
+delete from ordenes;
+
+delete from variante_talles;
+delete from variante_imagenes;
+delete from variantes;
+delete from productos;
+delete from categorias;
+
+-- 2) Categorías
+insert into categorias (nombre, slug) values
+('Remeras', 'remeras'),
+('Pantalones', 'pantalones'),
+('Ropa interior', 'ropa-interior');
+
+-- 3) Productos
+insert into productos (nombre, slug, descripcion, categoria_id, precio, active)
+values
+(
+  'Remera básica blanca',
+  'remera-basica-blanca',
+  'Remera suave y cómoda, ideal para todos los días.',
+  (select id from categorias where slug='remeras'),
+  12990 * 100,
+  true
+),
+(
+  'Remera oversize nude',
+  'remera-oversize-nude',
+  'Corte oversize, algodón premium.',
+  (select id from categorias where slug='remeras'),
+  15990 * 100,
+  true
+),
+(
+  'Pantalón sastrero beige',
+  'pantalon-sastrero-beige',
+  'Elegante y versátil, tiro alto.',
+  (select id from categorias where slug='pantalones'),
+  24990 * 100,
+  true
+),
+(
+  'Jogger algodón gris',
+  'jogger-algodon-gris',
+  'Comodidad total para uso diario.',
+  (select id from categorias where slug='pantalones'),
+  19990 * 100,
+  true
+),
+(
+  'Conjunto encaje nude',
+  'conjunto-encaje-nude',
+  'Delicado encaje, cómodo y elegante.',
+  (select id from categorias where slug='ropa-interior'),
+  18990 * 100,
+  true
+),
+(
+  'Bombacha algodón negra',
+  'bombacha-algodon-negra',
+  'Básico infaltable, algodón suave.',
+  (select id from categorias where slug='ropa-interior'),
+  7990 * 100,
+  true
+);
+
+-- 4) Variantes por color (por producto)
+-- Remera básica blanca: Blanco y Negro
+insert into variantes (product_id, nombre_color, color_hex, active)
+values
+((select id from productos where slug='remera-basica-blanca'), 'Blanco', '#FFFFFF', true),
+((select id from productos where slug='remera-basica-blanca'), 'Negro',  '#000000', true);
+
+-- Remera oversize nude: Nude y Negro
+insert into variantes (product_id, nombre_color, color_hex, active)
+values
+((select id from productos where slug='remera-oversize-nude'), 'Nude',  '#EECABB', true),
+((select id from productos where slug='remera-oversize-nude'), 'Negro', '#000000', true);
+
+-- Pantalón sastrero beige: Beige
+insert into variantes (product_id, nombre_color, color_hex, active)
+values
+((select id from productos where slug='pantalon-sastrero-beige'), 'Beige', '#D9C4B8', true);
+
+-- Jogger gris: Gris
+insert into variantes (product_id, nombre_color, color_hex, active)
+values
+((select id from productos where slug='jogger-algodon-gris'), 'Gris', '#B0B0B0', true);
+
+-- Conjunto encaje nude: Nude y Negro
+insert into variantes (product_id, nombre_color, color_hex, active)
+values
+((select id from productos where slug='conjunto-encaje-nude'), 'Nude', '#EECABB', true),
+((select id from productos where slug='conjunto-encaje-nude'), 'Negro', '#000000', true);
+
+-- Bombacha negra: Negro y Blanco
+insert into variantes (product_id, nombre_color, color_hex, active)
+values
+((select id from productos where slug='bombacha-algodon-negra'), 'Negro', '#000000', true),
+((select id from productos where slug='bombacha-algodon-negra'), 'Blanco', '#FFFFFF', true);
+
+-- 5) Imágenes por variante (URLs placeholder)
+-- Usamos picsum con seeds para que cambie por color y producto
+insert into variante_imagenes (variant_id, url, alt, sort_order)
+select v.id,
+       'https://picsum.photos/seed/' || p.slug || '-' || lower(replace(v.nombre_color,' ','-')) || '/900/1200',
+       p.nombre || ' - ' || v.nombre_color,
+       0
+from variantes v
+join productos p on p.id = v.product_id;
+
+-- Agregar una segunda imagen por variante (para simular galería)
+insert into variante_imagenes (variant_id, url, alt, sort_order)
+select v.id,
+       'https://picsum.photos/seed/' || p.slug || '-' || lower(replace(v.nombre_color,' ','-')) || '-2/900/1200',
+       p.nombre || ' - ' || v.nombre_color || ' (2)',
+       1
+from variantes v
+join productos p on p.id = v.product_id;
+
+-- 6) Talles + stock por variante
+-- Remeras: S/M/L
+insert into variante_talles (variant_id, talle, stock)
+select v.id, 'S', 10 from variantes v join productos p on p.id=v.product_id
+where p.slug in ('remera-basica-blanca','remera-oversize-nude');
+insert into variante_talles (variant_id, talle, stock)
+select v.id, 'M', 8 from variantes v join productos p on p.id=v.product_id
+where p.slug in ('remera-basica-blanca','remera-oversize-nude');
+insert into variante_talles (variant_id, talle, stock)
+select v.id, 'L', 5 from variantes v join productos p on p.id=v.product_id
+where p.slug in ('remera-basica-blanca','remera-oversize-nude');
+
+-- Pantalones: 38/40/42
+insert into variante_talles (variant_id, talle, stock)
+select v.id, '38', 4 from variantes v join productos p on p.id=v.product_id
+where p.slug in ('pantalon-sastrero-beige','jogger-algodon-gris');
+insert into variante_talles (variant_id, talle, stock)
+select v.id, '40', 4 from variantes v join productos p on p.id=v.product_id
+where p.slug in ('pantalon-sastrero-beige','jogger-algodon-gris');
+insert into variante_talles (variant_id, talle, stock)
+select v.id, '42', 2 from variantes v join productos p on p.id=v.product_id
+where p.slug in ('pantalon-sastrero-beige','jogger-algodon-gris');
+
+-- Ropa interior: 85/90
+insert into variante_talles (variant_id, talle, stock)
+select v.id, '85', 5 from variantes v join productos p on p.id=v.product_id
+where p.slug in ('conjunto-encaje-nude');
+insert into variante_talles (variant_id, talle, stock)
+select v.id, '90', 4 from variantes v join productos p on p.id=v.product_id
+where p.slug in ('conjunto-encaje-nude');
+
+-- Bombacha: S/M/L
+insert into variante_talles (variant_id, talle, stock)
+select v.id, 'S', 12 from variantes v join productos p on p.id=v.product_id
+where p.slug in ('bombacha-algodon-negra');
+insert into variante_talles (variant_id, talle, stock)
+select v.id, 'M', 10 from variantes v join productos p on p.id=v.product_id
+where p.slug in ('bombacha-algodon-negra');
+insert into variante_talles (variant_id, talle, stock)
+select v.id, 'L', 6 from variantes v join productos p on p.id=v.product_id
+where p.slug in ('bombacha-algodon-negra');
