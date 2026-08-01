@@ -84,6 +84,18 @@ export async function PATCH(
     return NextResponse.json({ order })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)
+    if (error?.message === "ORDER_NOT_FOUND") {
+      return NextResponse.json({ error: "Pedido no encontrado", code: "ORDER_NOT_FOUND" }, { status: 404 })
+    }
+    if (error?.message === "PAYMENT_CONFIRMED_REQUIRES_TRANSFER") {
+      return NextResponse.json(
+        {
+          error: "Solo los pedidos con pago por transferencia pueden pasar a pago confirmado.",
+          code: "INVALID_STATUS_FOR_PAYMENT",
+        },
+        { status: 400 }
+      )
+    }
     console.error("PATCH /api/admin/orders/[id] error:", error)
     return NextResponse.json({ error: "Error interno", code: "INTERNAL" }, { status: 500 })
   }

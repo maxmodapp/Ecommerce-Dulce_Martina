@@ -5,7 +5,6 @@ import Image from "next/image"
 import Link from "next/link"
 import type { Product } from "@/lib/types"
 import { formatPrice } from "@/lib/data"
-import { CATEGORY_LABELS } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 
 interface ProductCardProps {
@@ -54,8 +53,8 @@ export function ProductCard({ product }: ProductCardProps) {
 
   return (
     <Link
-      href={`/productos/${product.slug}`}
-      className="group flex flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring"
+      href={`/producto/${product.slug}`}
+      className="group flex h-full w-full flex-col overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-md focus:outline-none focus:ring-2 focus:ring-ring"
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-secondary">
         {/* ✅ UNA sola imagen renderizada */}
@@ -97,7 +96,9 @@ export function ProductCard({ product }: ProductCardProps) {
 
       <div className="flex flex-1 flex-col gap-1.5 p-4">
         <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          {CATEGORY_LABELS[product.category]}
+          {product.subcategory && product.subcategory.slug !== "general"
+            ? product.subcategory.name
+            : product.category?.name ?? "Producto"}
         </span>
 
         <h3 className="text-sm font-semibold leading-snug text-card-foreground group-hover:text-primary transition-colors">

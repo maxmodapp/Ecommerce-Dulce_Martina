@@ -1,7 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useMemo, useState } from "react"
+import { usePathname, useSearchParams } from "next/navigation"
 import { ArrowRight } from "lucide-react"
 import { AdminOrderStatusSelect } from "@/components/admin-order-status-select"
 import { Badge } from "@/components/ui/badge"
@@ -22,7 +23,14 @@ export function AdminOrdersList({
   initialOrders: AdminOrderListItem[]
   activeStatus?: OrderStatus
 }) {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
   const [orders, setOrders] = useState(initialOrders)
+
+  const currentPath = useMemo(() => {
+    const query = searchParams.toString()
+    return `${pathname}${query ? `?${query}` : ""}`
+  }, [pathname, searchParams])
 
   function handleStatusUpdated(orderId: string, nextStatus: OrderStatus) {
     setOrders((prev) =>
@@ -65,6 +73,7 @@ export function AdminOrdersList({
                   <AdminOrderStatusSelect
                     orderId={order.id}
                     deliveryMethod={order.deliveryMethod}
+                    paymentMethod={order.paymentMethod}
                     status={order.status}
                     onUpdated={(nextStatus) => handleStatusUpdated(order.id, nextStatus)}
                   />
@@ -110,7 +119,7 @@ export function AdminOrdersList({
             </div>
 
             <Button asChild variant="outline" className="w-full sm:w-auto">
-              <Link href={`/admin/pedidos/${order.id}`}>
+              <Link href={`/admin/pedidos/${order.id}?returnTo=${encodeURIComponent(currentPath)}`}>
                 Ver detalle
                 <ArrowRight className="size-4" />
               </Link>

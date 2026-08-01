@@ -3,25 +3,40 @@
 import { useState, useMemo } from "react"
 import { ProductCard } from "@/components/product-card"
 import { ProductFilters } from "@/components/product-filters"
-import type { Product, Category } from "@/lib/types"
+import type { Product } from "@/lib/types"
 
 interface ProductsGridProps {
   products: Product[]
-  fixedCategory?: Category
+  fixedCategory?: string
 }
 
 export function ProductsGrid({ products, fixedCategory }: ProductsGridProps) {
   const [search, setSearch] = useState("")
   const [category, setCategory] = useState<string>(fixedCategory || "all")
   const [sort, setSort] = useState("newest")
-  const [selectedSizes, setSelectedSizes] = useState<string[]>([])
+
+  const categories = useMemo(() => {
+    const uniqueCategories = new Map<string, { slug: string; name: string }>()
+
+    for (const product of products) {
+      if (!product.category) continue
+      uniqueCategories.set(product.category.slug, {
+        slug: product.category.slug,
+        name: product.category.name,
+      })
+    }
+
+    return Array.from(uniqueCategories.values()).sort((left, right) =>
+      left.name.localeCompare(right.name, "es")
+    )
+  }, [products])
 
   const filtered = useMemo(() => {
     let result = [...products]
 
     // Category
     if (category !== "all") {
-      result = result.filter((p) => p.category === category)
+      result = result.filter((p) => p.category?.slug === category)
     }
 
     // Search
@@ -31,13 +46,6 @@ export function ProductsGrid({ products, fixedCategory }: ProductsGridProps) {
         (p) =>
           p.name.toLowerCase().includes(q) ||
           p.description.toLowerCase().includes(q)
-      )
-    }
-
-    // Sizes
-    if (selectedSizes.length > 0) {
-      result = result.filter((p) =>
-        selectedSizes.some((s) => p.sizes.includes(s))
       )
     }
 
@@ -58,7 +66,7 @@ export function ProductsGrid({ products, fixedCategory }: ProductsGridProps) {
     }
 
     return result
-  }, [products, search, category, sort, selectedSizes])
+  }, [products, search, category, sort])
 
   return (
     <div className="flex flex-col gap-6">
@@ -66,11 +74,10 @@ export function ProductsGrid({ products, fixedCategory }: ProductsGridProps) {
         search={search}
         onSearchChange={setSearch}
         category={category}
+        categories={categories}
         onCategoryChange={setCategory}
         sort={sort}
         onSortChange={setSort}
-        selectedSizes={selectedSizes}
-        onSizesChange={setSelectedSizes}
         resultCount={filtered.length}
         hideCategory={!!fixedCategory}
       />
@@ -84,7 +91,6 @@ export function ProductsGrid({ products, fixedCategory }: ProductsGridProps) {
             onClick={() => {
               setSearch("")
               setCategory(fixedCategory || "all")
-              setSelectedSizes([])
             }}
             className="mt-3 text-sm font-medium text-primary hover:text-foreground transition-colors"
           >

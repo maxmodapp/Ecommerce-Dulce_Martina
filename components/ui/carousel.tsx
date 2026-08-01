@@ -175,6 +175,7 @@ function CarouselPrevious({
   className,
   variant = 'outline',
   size = 'icon',
+  onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
   const { orientation, scrollPrev, canScrollPrev } = useCarousel()
@@ -189,10 +190,17 @@ function CarouselPrevious({
         orientation === 'horizontal'
           ? 'top-1/2 -left-12 -translate-y-1/2'
           : '-top-12 left-1/2 -translate-x-1/2 rotate-90',
+        !canScrollPrev && 'cursor-not-allowed opacity-50',
         className,
       )}
-      disabled={!canScrollPrev}
-      onClick={scrollPrev}
+      aria-disabled={!canScrollPrev}
+      onClick={(event) => {
+        event.preventDefault()
+        event.stopPropagation()
+        if (!canScrollPrev) return
+        scrollPrev()
+        onClick?.(event)
+      }}
       {...props}
     >
       <ArrowLeft />
@@ -205,6 +213,7 @@ function CarouselNext({
   className,
   variant = 'outline',
   size = 'icon',
+  onClick,
   ...props
 }: React.ComponentProps<typeof Button>) {
   const { orientation, scrollNext, canScrollNext } = useCarousel()
@@ -219,10 +228,17 @@ function CarouselNext({
         orientation === 'horizontal'
           ? 'top-1/2 -right-12 -translate-y-1/2'
           : '-bottom-12 left-1/2 -translate-x-1/2 rotate-90',
+        !canScrollNext && 'cursor-not-allowed opacity-50',
         className,
       )}
-      disabled={!canScrollNext}
-      onClick={scrollNext}
+      aria-disabled={!canScrollNext}
+      onClick={(event) => {
+        event.preventDefault()
+        event.stopPropagation()
+        if (!canScrollNext) return
+        scrollNext()
+        onClick?.(event)
+      }}
       {...props}
     >
       <ArrowRight />

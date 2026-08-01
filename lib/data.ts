@@ -1,5 +1,35 @@
 import type { Product } from "./types"
 
+const fallbackCategories = {
+  remeras: { id: "remeras", name: "Remeras", slug: "remeras" },
+  pantalones: { id: "pantalones", name: "Pantalones", slug: "pantalones" },
+  "ropa-interior": { id: "ropa-interior", name: "Ropa Interior", slug: "ropa-interior" },
+}
+
+const fallbackSubcategories = {
+  remeras: {
+    id: "remeras-general",
+    name: "General",
+    slug: "general",
+    audience: "AMBOS" as const,
+    category: fallbackCategories.remeras,
+  },
+  pantalones: {
+    id: "pantalones-general",
+    name: "General",
+    slug: "general",
+    audience: "AMBOS" as const,
+    category: fallbackCategories.pantalones,
+  },
+  "ropa-interior": {
+    id: "ropa-interior-general",
+    name: "General",
+    slug: "general",
+    audience: "AMBOS" as const,
+    category: fallbackCategories["ropa-interior"],
+  },
+}
+
 export const products: Product[] = [
   // REMERAS
   {
@@ -7,7 +37,9 @@ export const products: Product[] = [
     slug: "remera-basica-blanca",
     name: "Remera Basica Blanca",
     price: 12500,
-    category: "remeras",
+    gender: "AMBOS",
+    category: fallbackCategories.remeras,
+    subcategory: fallbackSubcategories.remeras,
     description:
       "Remera basica de algodon premium en color blanco. Corte clasico, ideal para combinar con todo. Tela suave al tacto con excelente caida.",
     sizes: ["S", "M", "L", "XL"],
@@ -24,7 +56,9 @@ export const products: Product[] = [
     slug: "remera-oversize-rosa",
     name: "Remera Oversize Rosa",
     price: 15800,
-    category: "remeras",
+    gender: "AMBOS",
+    category: fallbackCategories.remeras,
+    subcategory: fallbackSubcategories.remeras,
     description:
       "Remera oversize en tono rosa empolvado. Corte relajado y moderno, perfecta para un look casual y femenino.",
     sizes: ["S", "M", "L"],
@@ -41,7 +75,9 @@ export const products: Product[] = [
     slug: "remera-crop-negra",
     name: "Remera Crop Negra",
     price: 13200,
-    category: "remeras",
+    gender: "AMBOS",
+    category: fallbackCategories.remeras,
+    subcategory: fallbackSubcategories.remeras,
     description:
       "Crop top en negro con corte moderno. Ideal para combinar con pantalones de tiro alto. Tela elastizada y comoda.",
     sizes: ["S", "M", "L"],
@@ -58,7 +94,9 @@ export const products: Product[] = [
     slug: "remera-tirantes-beige",
     name: "Musculosa Tirantes Beige",
     price: 11000,
-    category: "remeras",
+    gender: "AMBOS",
+    category: fallbackCategories.remeras,
+    subcategory: fallbackSubcategories.remeras,
     description:
       "Musculosa de tirantes finos en color beige. Tela liviana y fluida, perfecta para los dias de calor o para usar debajo de un blazer.",
     sizes: ["S", "M", "L", "XL"],
@@ -77,7 +115,9 @@ export const products: Product[] = [
     slug: "pantalon-palazzo-negro",
     name: "Pantalon Palazzo Negro",
     price: 25900,
-    category: "pantalones",
+    gender: "AMBOS",
+    category: fallbackCategories.pantalones,
+    subcategory: fallbackSubcategories.pantalones,
     description:
       "Pantalon palazzo de pierna ancha en negro. Cintura alta con elastico, tela fluida y elegante. Ideal para ocasiones especiales o el dia a dia.",
     sizes: ["S", "M", "L", "XL"],
@@ -94,7 +134,9 @@ export const products: Product[] = [
     slug: "pantalon-jogger-rosa",
     name: "Pantalon Jogger Rosa",
     price: 19500,
-    category: "pantalones",
+    gender: "AMBOS",
+    category: fallbackCategories.pantalones,
+    subcategory: fallbackSubcategories.pantalones,
     description:
       "Jogger en rosa con punos elasticos. Comodidad y estilo en una sola prenda. Perfecto para un look sporty chic.",
     sizes: ["S", "M", "L"],
@@ -111,7 +153,9 @@ export const products: Product[] = [
     slug: "pantalon-recto-beige",
     name: "Pantalon Recto Beige",
     price: 22800,
-    category: "pantalones",
+    gender: "AMBOS",
+    category: fallbackCategories.pantalones,
+    subcategory: fallbackSubcategories.pantalones,
     description:
       "Pantalon de corte recto en beige. Cintura alta, tela con caida elegante. Un basico que no puede faltar en tu guardarropa.",
     sizes: ["S", "M", "L", "XL"],
@@ -128,7 +172,9 @@ export const products: Product[] = [
     slug: "pantalon-cargo-verde",
     name: "Pantalon Cargo Verde",
     price: 24500,
-    category: "pantalones",
+    gender: "AMBOS",
+    category: fallbackCategories.pantalones,
+    subcategory: fallbackSubcategories.pantalones,
     description:
       "Pantalon cargo en verde oliva con bolsillos laterales. Look trendy y urbano con un toque femenino. Tela resistente y comoda.",
     sizes: ["S", "M", "L"],
@@ -147,7 +193,9 @@ export const products: Product[] = [
     slug: "conjunto-encaje-negro",
     name: "Conjunto Encaje Negro",
     price: 18900,
-    category: "ropa-interior",
+    gender: "AMBOS",
+    category: fallbackCategories["ropa-interior"],
+    subcategory: fallbackSubcategories["ropa-interior"],
     description:
       "Conjunto de lenceria en encaje negro. Corpiño con arco y bombacha colaless a tono. Elegancia y sensualidad en cada detalle.",
     sizes: ["S", "M", "L"],
@@ -164,7 +212,9 @@ export const products: Product[] = [
     slug: "bralette-rosa",
     name: "Bralette Rosa",
     price: 9800,
-    category: "ropa-interior",
+    gender: "AMBOS",
+    category: fallbackCategories["ropa-interior"],
+    subcategory: fallbackSubcategories["ropa-interior"],
     description:
       "Bralette sin arco en rosa con terminaciones de encaje. Ultra comodo y femenino. Ideal para el dia a dia o para lucir debajo de prendas escotadas.",
     sizes: ["S", "M", "L"],
@@ -181,7 +231,9 @@ export const products: Product[] = [
     slug: "body-encaje-blanco",
     name: "Body Encaje Blanco",
     price: 21500,
-    category: "ropa-interior",
+    gender: "AMBOS",
+    category: fallbackCategories["ropa-interior"],
+    subcategory: fallbackSubcategories["ropa-interior"],
     description:
       "Body de encaje blanco con transparencias. Escote en V y espalda descubierta. Una pieza versatil para usar como prenda interior o exterior.",
     sizes: ["S", "M", "L"],
@@ -198,7 +250,9 @@ export const products: Product[] = [
     slug: "conjunto-saten-burdeos",
     name: "Conjunto Saten Burdeos",
     price: 23400,
-    category: "ropa-interior",
+    gender: "AMBOS",
+    category: fallbackCategories["ropa-interior"],
+    subcategory: fallbackSubcategories["ropa-interior"],
     description:
       "Conjunto de saten en color burdeos. Corpiño triangular y bombacha culotte. Tela sedosa con brillo sutil, perfecta para sentirte especial.",
     sizes: ["S", "M", "L", "XL"],
@@ -217,7 +271,7 @@ export function getProductBySlug(slug: string): Product | undefined {
 }
 
 export function getProductsByCategory(category: string): Product[] {
-  return products.filter((p) => p.category === category)
+  return products.filter((p) => p.category?.slug === category)
 }
 
 export function getFeaturedProducts(): Product[] {

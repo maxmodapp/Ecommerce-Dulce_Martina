@@ -37,8 +37,22 @@ export function OrderDetailView({
   const statusMessage = getOrderStatusMessage(order.status, order.deliveryMethod)
   const deliveryLabel = getDeliveryMethodLabel(order.deliveryMethod)
   const paymentMethodLabel = getPaymentMethodLabel(order.paymentMethod)
-  const paymentHelpText = getPaymentHelpText(order.paymentMethod, order.deliveryMethod)
+  const paymentHelpText = getPaymentHelpText(
+    order.paymentMethod,
+    order.deliveryMethod,
+    order.status
+  )
   const showTransferState = order.paymentMethod === "TRANSFER"
+  const showTransferPendingNotice = showTransferState && order.status === "PENDING"
+  const showTransferAccount = showTransferState && order.status !== "PENDING"
+  const transferAccountIntro =
+    order.status === "CONFIRMED"
+      ? "Realiza la transferencia a la siguiente cuenta con el monto exacto del total y envia el comprobante por WhatsApp (2345410952)."
+      : "Datos de la cuenta de transferencia de este pedido."
+  const transferAccountFooter =
+    order.status === "CONFIRMED"
+      ? "Cuando confirmemos el pago, pasaremos tu pedido a la siguiente etapa."
+      : "El pago por transferencia ya figura confirmado."
   const showShippingRow = order.deliveryMethod === "DELIVERY"
 
   return (
@@ -82,12 +96,15 @@ export function OrderDetailView({
                   year: "numeric",
                 })}
               </p>
-              {showTransferState && (
+              {showTransferPendingNotice && (
+                <p className="mt-4 rounded-xl bg-secondary/30 p-4 text-sm text-muted-foreground">
+                  Te diremos a donde debes transferir el dinero una vez que confirmemos tu pedido.
+                </p>
+              )}
+
+              {showTransferAccount && (
                 <div className="mt-4 space-y-3 text-sm">
-                  <p className="font-medium text-foreground">
-                    Realiza la transferencia a la siguiente cuenta con el monto exacto del total y
-                    envia el comprobante por WhatsApp (2345410952).
-                  </p>
+                  <p className="font-medium text-foreground">{transferAccountIntro}</p>
                   <div className="space-y-1 text-muted-foreground">
                     <p>
                       <span className="font-medium text-foreground">Monto total:</span>{" "}
@@ -103,7 +120,7 @@ export function OrderDetailView({
                     </p>
                   </div>
                   <p className="text-muted-foreground">
-                    Cuando verifiquemos el pago, actualizaremos el estado de tu pedido a confirmado.
+                    {transferAccountFooter}
                   </p>
                 </div>
               )}
@@ -123,7 +140,11 @@ export function OrderDetailView({
         </CardHeader>
       </Card>
 
-      <OrderTimeline status={order.status} deliveryMethod={order.deliveryMethod} />
+      <OrderTimeline
+        status={order.status}
+        deliveryMethod={order.deliveryMethod}
+        paymentMethod={order.paymentMethod}
+      />
 
       <div className="grid gap-6 lg:grid-cols-[1.6fr_1fr]">
         <Card>

@@ -16,7 +16,6 @@ import { useCart } from "@/lib/cart-context"
 import { useCartDrawer } from "@/lib/cart-drawer-context"
 import type { Product } from "@/lib/types"
 import { formatPrice } from "@/lib/data"
-import { CATEGORY_LABELS } from "@/lib/types"
 
 interface ProductDetailProps {
   product: Product
@@ -133,12 +132,27 @@ export function ProductDetail({ product }: ProductDetailProps) {
           Productos
         </Link>
         <span>/</span>
-        <Link
-          href={`/productos/${product.category}`}
-          className="transition-colors hover:text-foreground"
-        >
-          {CATEGORY_LABELS[product.category]}
-        </Link>
+        {product.category ? (
+          <Link
+            href={`/productos/${product.category.slug}`}
+            className="transition-colors hover:text-foreground"
+          >
+            {product.category.name}
+          </Link>
+        ) : (
+          <span>Categoria</span>
+        )}
+        {product.subcategory && product.subcategory.slug !== "general" ? (
+          <>
+            <span>/</span>
+            <Link
+              href={`/productos/${product.category?.slug}/${product.subcategory.slug}`}
+              className="transition-colors hover:text-foreground"
+            >
+              {product.subcategory.name}
+            </Link>
+          </>
+        ) : null}
         <span>/</span>
         <span className="text-foreground">{product.name}</span>
       </nav>
@@ -183,7 +197,9 @@ export function ProductDetail({ product }: ProductDetailProps) {
         <div className="flex flex-col gap-6">
           <div>
             <span className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              {CATEGORY_LABELS[product.category]}
+              {product.subcategory && product.subcategory.slug !== "general"
+                ? product.subcategory.name
+                : product.category?.name ?? "Producto"}
             </span>
             <h1 className="mt-1 font-serif text-3xl font-bold text-foreground md:text-4xl">
               {product.name}

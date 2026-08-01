@@ -1,7 +1,8 @@
 import Link from "next/link"
-import { Plus } from "lucide-react"
+import { ArrowLeft, Plus } from "lucide-react"
 import { requireAdminPageUser } from "@/lib/admin"
 import { getAdminProducts } from "@/lib/admin-products"
+import { getAdminCategories } from "@/lib/catalog"
 import { AdminProductsList } from "@/components/admin-products-list"
 import { Button } from "@/components/ui/button"
 import {
@@ -20,7 +21,10 @@ export const metadata = {
 
 export default async function AdminProductosPage() {
   await requireAdminPageUser("/admin/productos")
-  const products = await getAdminProducts()
+  const [products, categories] = await Promise.all([
+    getAdminProducts(),
+    getAdminCategories(),
+  ])
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 lg:px-8">
@@ -38,12 +42,20 @@ export default async function AdminProductosPage() {
           </p>
         </div>
 
-        <Button asChild className="w-full sm:w-auto">
-          <Link href="/admin/productos/nuevo">
-            <Plus className="size-4" />
-            Nuevo producto
-          </Link>
-        </Button>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button asChild variant="outline" className="w-full sm:w-auto">
+            <Link href="/admin">
+              <ArrowLeft className="size-4" />
+              Volver al panel
+            </Link>
+          </Button>
+          <Button asChild className="w-full sm:w-auto">
+            <Link href="/admin/productos/nuevo">
+              <Plus className="size-4" />
+              Nuevo producto
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {products.length === 0 ? (
@@ -67,7 +79,7 @@ export default async function AdminProductosPage() {
         </div>
       ) : (
         <div className="mt-8">
-          <AdminProductsList products={products} />
+          <AdminProductsList products={products} categories={categories} />
         </div>
       )}
     </div>

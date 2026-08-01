@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { getCurrentUser } from "@/lib/auth"
+import { getCatalogMenu } from "@/lib/catalog"
 import { AuthProvider } from "@/lib/auth-context"
 import { CartProvider } from "@/lib/cart-context"
 import { CartDrawerProvider } from "@/lib/cart-drawer-context"
@@ -32,6 +33,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }>) {
   const initialUser = await getCurrentUser()
+  const catalogMenu = await getCatalogMenu()
 
   return (
     <html lang="es">
@@ -39,10 +41,10 @@ export default async function RootLayout({
         <AuthProvider initialUser={initialUser}>
           <CartProvider>
             <CartDrawerProvider>
-              <Navbar />
+              <Navbar catalogMenu={catalogMenu} />
               <CartDrawer />
               <main className="min-h-screen">{children}</main>
-              <Footer />
+              <Footer catalogMenu={catalogMenu} />
             </CartDrawerProvider>
           </CartProvider>
         </AuthProvider>

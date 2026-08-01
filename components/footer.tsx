@@ -1,8 +1,21 @@
+"use client"
+
 import Link from "next/link"
 import Image from "next/image"
-import { Instagram, MessageCircle, Mail } from "lucide-react"
+import { Instagram, Mail, MessageCircle, X } from "lucide-react"
+import { useState } from "react"
+import { CatalogMenuContent } from "@/components/catalog-menu-content"
+import type { CatalogMenuCategory, MenuAudienceFilter } from "@/lib/types"
 
-export function Footer() {
+type FooterProps = {
+  catalogMenu: CatalogMenuCategory[]
+}
+
+export function Footer({ catalogMenu }: FooterProps) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [activeMenuFilter, setActiveMenuFilter] = useState<MenuAudienceFilter>("all")
+  const footerCategories = catalogMenu.slice(0, 3)
+
   return (
     <footer className="border-t border-border bg-secondary/30">
       <div className="mx-auto max-w-7xl px-4 py-12 lg:px-8">
@@ -33,30 +46,36 @@ export function Footer() {
               Tienda
             </h3>
             <ul className="flex flex-col gap-2">
-              <li>
-                <Link
-                  href="/productos/remeras"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
-                >
-                  Remeras
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/productos/pantalones"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
-                >
-                  Pantalones
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/productos/ropa-interior"
-                  className="text-sm text-muted-foreground transition-colors hover:text-primary"
-                >
-                  Ropa Interior
-                </Link>
-              </li>
+              {footerCategories.map((category) => (
+                <li key={category.id}>
+                  <Link
+                    href={`/productos/${category.slug}`}
+                    className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  >
+                    {category.name}
+                  </Link>
+                </li>
+              ))}
+              {catalogMenu.length > 0 ? (
+                <li>
+                  <button
+                    type="button"
+                    onClick={() => setMenuOpen(true)}
+                    className="text-left text-sm text-muted-foreground transition-colors hover:text-primary"
+                  >
+                    Ver todo
+                  </button>
+                </li>
+              ) : (
+                <li>
+                  <Link
+                    href="/productos"
+                    className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                  >
+                    Ver todo
+                  </Link>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -142,6 +161,60 @@ export function Footer() {
           </p>
         </div>
       </div>
+
+      {menuOpen ? (
+        <div
+          className="fixed inset-0 z-[70] bg-black/10"
+          onClick={() => setMenuOpen(false)}
+        >
+          <div
+            className="absolute inset-x-0 top-16 hidden max-h-[calc(100svh-4rem)] overflow-y-auto border-y border-border bg-white text-foreground shadow-sm md:block"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mx-auto flex max-w-7xl justify-end px-6 pt-4">
+              <button
+                type="button"
+                onClick={() => setMenuOpen(false)}
+                className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label="Cerrar categorias"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+            <CatalogMenuContent
+              catalogMenu={catalogMenu}
+              activeMenuFilter={activeMenuFilter}
+              onFilterChange={setActiveMenuFilter}
+              onNavigate={() => setMenuOpen(false)}
+              className="pt-3"
+            />
+          </div>
+
+          <div
+            className="absolute inset-x-0 top-16 max-h-[calc(100svh-4rem)] overflow-y-auto border-t border-navbar-border bg-background-navbar md:hidden"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex justify-end px-4 pt-3">
+              <button
+                type="button"
+                onClick={() => setMenuOpen(false)}
+                className="rounded-md p-2 text-white/82 transition-colors hover:bg-white/10 hover:text-white"
+                aria-label="Cerrar categorias"
+              >
+                <X className="size-5" />
+              </button>
+            </div>
+            <CatalogMenuContent
+              catalogMenu={catalogMenu}
+              activeMenuFilter={activeMenuFilter}
+              onFilterChange={setActiveMenuFilter}
+              onNavigate={() => setMenuOpen(false)}
+              variant="mobile"
+              className="px-4 pb-5 pt-3"
+            />
+          </div>
+        </div>
+      ) : null}
     </footer>
   )
 }

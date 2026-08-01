@@ -9,14 +9,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Switch } from "@/components/ui/switch"
 import { formatPrice } from "@/lib/data"
 import type {
-  AdminCategoryOption,
+  AdminSubcategoryOption,
+  Audience,
   AdminProductDetail,
   AdminProductVariantImageItem,
   AdminProductVariantItem,
   AdminProductVariantSizeItem,
   HomeSection,
 } from "@/lib/types"
-import { HOME_SECTION_LABELS } from "@/lib/types"
+import { AUDIENCE_LABELS, AUDIENCE_VALUES, HOME_SECTION_LABELS } from "@/lib/types"
 
 const inputClassName =
   "h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
@@ -27,7 +28,8 @@ type ProductFormState = {
   name: string
   slug: string
   description: string
-  categoryId: string
+  subcategoryId: string
+  gender: Audience
   price: string
   active: boolean
   homeSections: HomeSection[]
@@ -54,7 +56,8 @@ function toProductForm(product: AdminProductDetail): ProductFormState {
     name: product.name,
     slug: product.slug,
     description: product.description ?? "",
-    categoryId: product.categoryId ?? "",
+    subcategoryId: product.subcategoryId ?? "",
+    gender: product.gender,
     price: String(product.price),
     active: product.active,
     homeSections: product.homeSections,
@@ -118,10 +121,20 @@ function ProductSummary({ product }: { product: AdminProductDetail }) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="grid gap-4 text-sm text-muted-foreground sm:grid-cols-2 xl:grid-cols-4">
+      <CardContent className="grid gap-4 text-sm text-muted-foreground sm:grid-cols-2 xl:grid-cols-6">
         <div>
           <p className="text-xs uppercase tracking-wide">Categoria</p>
           <p className="mt-1 text-foreground">{product.category?.name ?? "Sin categoria"}</p>
+        </div>
+        <div>
+          <p className="text-xs uppercase tracking-wide">Subcategoria</p>
+          <p className="mt-1 text-foreground">
+            {product.subcategory?.name ?? "Sin subcategoria"}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs uppercase tracking-wide">Genero</p>
+          <p className="mt-1 text-foreground">{AUDIENCE_LABELS[product.gender]}</p>
         </div>
         <div>
           <p className="text-xs uppercase tracking-wide">Variantes</p>
@@ -778,10 +791,10 @@ function VariantCard({
 
 export function AdminProductDetailView({
   initialProduct,
-  categories,
+  subcategories,
 }: {
   initialProduct: AdminProductDetail
-  categories: AdminCategoryOption[]
+  subcategories: AdminSubcategoryOption[]
 }) {
   const router = useRouter()
   const [form, setForm] = useState<ProductFormState>(() => toProductForm(initialProduct))
@@ -824,7 +837,8 @@ export function AdminProductDetailView({
           name: form.name,
           slug: form.slug,
           description: form.description,
-          categoryId: form.categoryId,
+          subcategoryId: form.subcategoryId,
+          gender: form.gender,
           price: Number(form.price),
           active: form.active,
           homeSections: form.homeSections,
@@ -930,19 +944,19 @@ export function AdminProductDetailView({
             <div className="grid gap-5 md:grid-cols-2">
               <div>
                 <label className="mb-2 block text-sm font-medium text-foreground">
-                  Categoria
+                  Subcategoria
                 </label>
                 <select
-                  value={form.categoryId}
+                  value={form.subcategoryId}
                   onChange={(event) =>
-                    setForm((current) => ({ ...current, categoryId: event.target.value }))
+                    setForm((current) => ({ ...current, subcategoryId: event.target.value }))
                   }
                   className={inputClassName}
                 >
-                  <option value="">Sin categoria</option>
-                  {categories.map((category) => (
-                    <option key={category.id} value={category.id}>
-                      {category.name}
+                  <option value="">Seleccionar subcategoria</option>
+                  {subcategories.map((subcategory) => (
+                    <option key={subcategory.id} value={subcategory.id}>
+                      {subcategory.category.name} / {subcategory.name}
                     </option>
                   ))}
                 </select>
@@ -961,6 +975,25 @@ export function AdminProductDetailView({
                   className={inputClassName}
                 />
               </div>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-foreground">
+                Genero del producto
+              </label>
+              <select
+                value={form.gender}
+                onChange={(event) =>
+                  setForm((current) => ({ ...current, gender: event.target.value as Audience }))
+                }
+                className={inputClassName}
+              >
+                {AUDIENCE_VALUES.map((audience) => (
+                  <option key={audience} value={audience}>
+                    {AUDIENCE_LABELS[audience]}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="flex items-center justify-between rounded-lg border border-border/70 px-4 py-3">

@@ -4,13 +4,15 @@ import { useState, type FormEvent } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
-import type { AdminCategoryOption } from "@/lib/types"
+import type { AdminSubcategoryOption, Audience } from "@/lib/types"
+import { AUDIENCE_LABELS, AUDIENCE_VALUES } from "@/lib/types"
 
 type FormState = {
   name: string
   slug: string
   description: string
-  categoryId: string
+  subcategoryId: string
+  gender: Audience
   price: string
   active: boolean
 }
@@ -20,16 +22,17 @@ function getInitialState(): FormState {
     name: "",
     slug: "",
     description: "",
-    categoryId: "",
+    subcategoryId: "",
+    gender: "AMBOS",
     price: "",
     active: true,
   }
 }
 
 export function AdminProductCreateForm({
-  categories,
+  subcategories,
 }: {
-  categories: AdminCategoryOption[]
+  subcategories: AdminSubcategoryOption[]
 }) {
   const router = useRouter()
   const [form, setForm] = useState<FormState>(getInitialState)
@@ -53,7 +56,8 @@ export function AdminProductCreateForm({
           name: form.name,
           slug: form.slug,
           description: form.description,
-          categoryId: form.categoryId,
+          subcategoryId: form.subcategoryId,
+          gender: form.gender,
           price: Number(form.price),
           active: form.active,
         }),
@@ -122,19 +126,19 @@ export function AdminProductCreateForm({
 
       <div className="grid gap-5 md:grid-cols-2">
         <div>
-          <label htmlFor="categoryId" className="mb-2 block text-sm font-medium text-foreground">
-            Categoria
+          <label htmlFor="subcategoryId" className="mb-2 block text-sm font-medium text-foreground">
+            Subcategoria
           </label>
           <select
-            id="categoryId"
-            value={form.categoryId}
-            onChange={(event) => updateField("categoryId", event.target.value)}
+            id="subcategoryId"
+            value={form.subcategoryId}
+            onChange={(event) => updateField("subcategoryId", event.target.value)}
             className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
           >
-            <option value="">Sin categoria</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
+            <option value="">Seleccionar subcategoria</option>
+            {subcategories.map((subcategory) => (
+              <option key={subcategory.id} value={subcategory.id}>
+                {subcategory.category.name} / {subcategory.name}
               </option>
             ))}
           </select>
@@ -155,6 +159,24 @@ export function AdminProductCreateForm({
             placeholder="0"
           />
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="gender" className="mb-2 block text-sm font-medium text-foreground">
+          Genero del producto
+        </label>
+        <select
+          id="gender"
+          value={form.gender}
+          onChange={(event) => updateField("gender", event.target.value as Audience)}
+          className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
+        >
+          {AUDIENCE_VALUES.map((audience) => (
+            <option key={audience} value={audience}>
+              {AUDIENCE_LABELS[audience]}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="flex items-center justify-between rounded-lg border border-border/70 px-4 py-3">

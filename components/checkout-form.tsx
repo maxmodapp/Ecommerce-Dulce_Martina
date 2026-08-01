@@ -40,6 +40,12 @@ export function CheckoutForm() {
   }))
 
   const isPickup = form.deliveryMethod === "PICKUP"
+  const paymentOptions = isPickup
+    ? [
+        { value: "transferencia", label: "Transferencia bancaria" },
+        { value: "efectivo", label: "Efectivo al recibir" },
+      ]
+    : [{ value: "transferencia", label: "Transferencia bancaria" }]
 
   useEffect(() => {
     if (!user || prefillAppliedRef.current) return
@@ -78,7 +84,11 @@ export function CheckoutForm() {
   }
 
   const handleDeliveryChange = (method: "DELIVERY" | "PICKUP") => {
-    setForm((prev) => ({ ...prev, deliveryMethod: method }))
+    setForm((prev) => ({
+      ...prev,
+      deliveryMethod: method,
+      paymentMethod: method === "DELIVERY" ? "transferencia" : prev.paymentMethod,
+    }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -383,10 +393,7 @@ export function CheckoutForm() {
                 Metodo de pago
               </legend>
               <div className="flex flex-col gap-3">
-                {[
-                  { value: "transferencia", label: "Transferencia bancaria" },
-                  { value: "efectivo", label: "Efectivo al recibir" },
-                ].map((option) => (
+                {paymentOptions.map((option) => (
                   <label
                     key={option.value}
                     className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 transition-colors ${

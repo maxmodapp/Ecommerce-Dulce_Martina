@@ -8,16 +8,30 @@ import type { SessionUser } from "@/lib/types"
 export class AdminApiError extends Error {
   status: number
   code: string
+  details?: Record<string, unknown>
 
-  constructor(status: number, message: string, code = "FORBIDDEN") {
+  constructor(
+    status: number,
+    message: string,
+    code = "FORBIDDEN",
+    details?: Record<string, unknown>
+  ) {
     super(message)
     this.status = status
     this.code = code
+    this.details = details
   }
 }
 
 export function adminJsonError(error: AdminApiError) {
-  return NextResponse.json({ error: error.message, code: error.code }, { status: error.status })
+  return NextResponse.json(
+    {
+      error: error.message,
+      code: error.code,
+      ...(error.details ? { details: error.details } : {}),
+    },
+    { status: error.status }
+  )
 }
 
 export async function requireAdminPageUser(nextPath: string): Promise<SessionUser> {

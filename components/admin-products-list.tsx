@@ -1,42 +1,98 @@
 "use client"
 
 import Link from "next/link"
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { PencilLine } from "lucide-react"
 import { AdminProductToggle } from "@/components/admin-product-toggle"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { formatPrice } from "@/lib/data"
-import type { AdminProductListItem } from "@/lib/types"
+import type { AdminCategoryOption, AdminProductListItem } from "@/lib/types"
+import { AUDIENCE_LABELS } from "@/lib/types"
 
 type SortOrder = "newest" | "oldest"
 
-export function AdminProductsList({ products }: { products: AdminProductListItem[] }) {
-  const [selectedCategory, setSelectedCategory] = useState("all")
-  const [sortOrder, setSortOrder] = useState<SortOrder>("newest")
+export function AdminProductsList({
+  products,
+  categories: adminCategories,
+}: {
+  products: AdminProductListItem[]
+  categories: AdminCategoryOption[]
+}) {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
 
   const categories = useMemo(() => {
-    const uniqueCategories = new Map<string, { id: string; name: string }>()
+    if (adminCategories.length > 0) {
+      return adminCategories
+        .slice()
+        .sort((left, right) => {
+          const leftOrder = left.sortOrder ?? 0
+          const rightOrder = right.sortOrder ?? 0
+
+          if (leftOrder !== rightOrder) return leftOrder - rightOrder
+          return left.name.localeCompare(right.name, "es")
+        })
+    }
+
+    const uniqueCategories = new Map<string, AdminCategoryOption>()
 
     for (const product of products) {
       if (!product.category) continue
-      uniqueCategories.set(product.category.id, {
+      uniqueCategories.set(product.category.slug, {
         id: product.category.id,
         name: product.category.name,
+        slug: product.category.slug,
       })
     }
 
     return Array.from(uniqueCategories.values()).sort((left, right) =>
       left.name.localeCompare(right.name, "es")
     )
-  }, [products])
+  }, [adminCategories, products])
+
+  const selectedCategory = useMemo(() => {
+    const value = searchParams.get("categoria")
+    if (!value) return "all"
+    return categories.some((category) => category.slug === value) ? value : "all"
+  }, [categories, searchParams])
+
+  const sortOrder: SortOrder = searchParams.get("orden") === "oldest" ? "oldest" : "newest"
+
+  const currentPath = useMemo(() => {
+    const query = searchParams.toString()
+    return `${pathname}${query ? `?${query}` : ""}`
+  }, [pathname, searchParams])
+
+  function updateFilters(next: { category?: string; sort?: SortOrder }) {
+    const params = new URLSearchParams(searchParams.toString())
+    const category = next.category ?? selectedCategory
+    const sort = next.sort ?? sortOrder
+
+    if (category === "all") {
+      params.delete("categoria")
+    } else {
+      params.set("categoria", category)
+    }
+
+    if (sort === "newest") {
+      params.delete("orden")
+    } else {
+      params.set("orden", sort)
+    }
+
+    const query = params.toString()
+    router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false })
+  }
 
   const visibleProducts = useMemo(() => {
     const filteredProducts =
       selectedCategory === "all"
         ? products
-        : products.filter((product) => product.category?.id === selectedCategory)
+        : products.filter((product) => product.category?.slug === selectedCategory)
 
     const direction = sortOrder === "newest" ? -1 : 1
 
@@ -78,12 +134,12 @@ export function AdminProductsList({ products }: { products: AdminProductListItem
               <select
                 id="category-filter"
                 value={selectedCategory}
-                onChange={(event) => setSelectedCategory(event.target.value)}
+                onChange={(event) => updateFilters({ category: event.target.value })}
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="all">Todas</option>
                 {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
+                  <option key={category.id} value={category.slug}>
                     {category.name}
                   </option>
                 ))}
@@ -100,7 +156,7 @@ export function AdminProductsList({ products }: { products: AdminProductListItem
               <select
                 id="sort-order"
                 value={sortOrder}
-                onChange={(event) => setSortOrder(event.target.value as SortOrder)}
+                onChange={(event) => updateFilters({ sort: event.target.value as SortOrder })}
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="newest">Mas nuevos</option>
@@ -157,6 +213,16 @@ export function AdminProductsList({ products }: { products: AdminProductListItem
                       </p>
                     </div>
                     <div>
+                      <p className="text-xs uppercase tracking-wide">Subcategoria</p>
+                      <p className="mt-1 text-foreground">
+                        {product.subcategory?.name ?? "Sin subcategoria"}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-wide">Genero</p>
+                      <p className="mt-1 text-foreground">{AUDIENCE_LABELS[product.gender]}</p>
+                    </div>
+                    <div>
                       <p className="text-xs uppercase tracking-wide">Stock total</p>
                       <p className="mt-1 text-foreground">{product.totalStock}</p>
                     </div>
@@ -174,7 +240,11 @@ export function AdminProductsList({ products }: { products: AdminProductListItem
             <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
               <div className="flex flex-wrap gap-2">
                 <Button asChild className="w-full sm:w-auto">
-                  <Link href={`/admin/productos/${product.id}`}>
+                  <Link
+                    href={`/admin/productos/${product.id}?returnTo=${encodeURIComponent(
+                      currentPath
+                    )}`}
+                  >
                     <PencilLine className="size-4" />
                     Abrir producto
                   </Link>

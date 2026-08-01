@@ -7,9 +7,24 @@ export const metadata = {
   description: "Explora nuestra coleccion completa de remeras, pantalones y ropa interior.",
 }
 
-export default async function ProductosPage() {
+export default async function ProductosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; genero?: string; categoria?: string; subcategoria?: string }>
+}) {
   const origin = await getOrigin()
-  const res = await fetch(`${origin}/api/products`, { cache: "no-store" })
+  const params = await searchParams
+  const apiParams = new URLSearchParams()
+
+  if (params.q) apiParams.set("q", params.q)
+  if (params.genero) apiParams.set("genero", params.genero)
+  if (params.categoria) apiParams.set("categoria", params.categoria)
+  if (params.subcategoria) apiParams.set("subcategoria", params.subcategoria)
+
+  const queryString = apiParams.toString()
+  const res = await fetch(`${origin}/api/products${queryString ? `?${queryString}` : ""}`, {
+    cache: "no-store",
+  })
   const data = await res.json()
 
   const products = (data.productos ?? []).map(apiListToUI)

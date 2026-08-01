@@ -1,17 +1,26 @@
 import type { OrderStatus } from "@/lib/types"
-import { getTimelineSteps } from "@/lib/order-display"
+import { getOrderStatusDescription, getTimelineSteps } from "@/lib/order-display"
 import { cn } from "@/lib/utils"
 
 interface OrderTimelineProps {
   status: OrderStatus
   deliveryMethod: string
+  paymentMethod: string
 }
 
-export function OrderTimeline({ status, deliveryMethod }: OrderTimelineProps) {
-  const steps = getTimelineSteps(deliveryMethod)
-  const currentIndex = steps.findIndex((step) => step.key === status)
-  const visibleCurrentIndex = currentIndex >= 0 ? currentIndex : 0
+export function OrderTimeline({ status, deliveryMethod, paymentMethod }: OrderTimelineProps) {
   const isCancelled = status === "CANCELLED"
+  const steps = isCancelled
+    ? ([
+        { key: "PENDING", label: "Pendiente" },
+        { key: "CANCELLED", label: "Cancelado" },
+      ] as const)
+    : getTimelineSteps(deliveryMethod, paymentMethod)
+  const currentIndex = steps.findIndex((step) => step.key === status)
+  const visibleCurrentIndex = isCancelled ? steps.length - 1 : currentIndex >= 0 ? currentIndex : 0
+  const statusDescription = getOrderStatusDescription(status, deliveryMethod, paymentMethod)
+  const workingStatuses: OrderStatus[] = ["PENDING", "READY"]
+  const isWorkingCurrentStatus = workingStatuses.includes(status)
 
   return (
     <div className="rounded-2xl border bg-card p-5 sm:p-6">
@@ -26,8 +35,12 @@ export function OrderTimeline({ status, deliveryMethod }: OrderTimelineProps) {
 
       <div className="space-y-4 md:hidden">
         {steps.map((step, idx) => {
-          const completed = !isCancelled && idx < visibleCurrentIndex
-          const active = !isCancelled && idx === visibleCurrentIndex
+          const completed = idx < visibleCurrentIndex
+          const active = idx === visibleCurrentIndex
+          const highlighted = isCancelled || completed || (active && !isWorkingCurrentStatus)
+          const activeWorking = active && !isCancelled && isWorkingCurrentStatus
+          const connectorDone =
+            isCancelled || idx < visibleCurrentIndex || (idx === visibleCurrentIndex && !isWorkingCurrentStatus)
 
           return (
             <div key={step.key} className="flex gap-3">
@@ -35,9 +48,9 @@ export function OrderTimeline({ status, deliveryMethod }: OrderTimelineProps) {
                 <div
                   className={cn(
                     "flex size-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
-                    completed && "border-primary bg-primary text-primary-foreground",
-                    active && "border-primary bg-primary/10 text-primary",
-                    !completed && !active && "border-border bg-background text-muted-foreground",
+                    highlighted && "border-primary bg-primary text-primary-foreground",
+                    activeWorking && "border-primary bg-primary/10 text-primary",
+                    !highlighted && !activeWorking && "border-border bg-background text-muted-foreground",
                   )}
                 >
                   {idx + 1}
@@ -46,7 +59,7 @@ export function OrderTimeline({ status, deliveryMethod }: OrderTimelineProps) {
                   <div
                     className={cn(
                       "mt-2 h-8 w-px",
-                      completed ? "bg-primary" : "bg-border",
+                      connectorDone ? "bg-primary" : "bg-border",
                     )}
                   />
                 )}
@@ -56,8 +69,7 @@ export function OrderTimeline({ status, deliveryMethod }: OrderTimelineProps) {
                 <p
                   className={cn(
                     "text-sm font-medium",
-                    active ? "text-foreground" : "text-muted-foreground",
-                    completed && "text-foreground",
+                    active || highlighted ? "text-foreground" : "text-muted-foreground",
                   )}
                 >
                   {step.label}
@@ -72,11 +84,17 @@ export function OrderTimeline({ status, deliveryMethod }: OrderTimelineProps) {
       </div>
 
       <div className="hidden md:block">
-        <div className="grid grid-cols-5 gap-4">
+        <div
+          className="grid gap-4"
+          style={{ gridTemplateColumns: `repeat(${steps.length}, minmax(0, 1fr))` }}
+        >
           {steps.map((step, idx) => {
-            const completed = !isCancelled && idx < visibleCurrentIndex
-            const active = !isCancelled && idx === visibleCurrentIndex
-            const connectorDone = !isCancelled && idx < visibleCurrentIndex
+            const completed = idx < visibleCurrentIndex
+            const active = idx === visibleCurrentIndex
+            const highlighted = isCancelled || completed || (active && !isWorkingCurrentStatus)
+            const activeWorking = active && !isCancelled && isWorkingCurrentStatus
+            const connectorDone =
+              isCancelled || idx < visibleCurrentIndex || (idx === visibleCurrentIndex && !isWorkingCurrentStatus)
 
             return (
               <div key={step.key} className="relative px-2 text-center">
@@ -93,9 +111,9 @@ export function OrderTimeline({ status, deliveryMethod }: OrderTimelineProps) {
                   <div
                     className={cn(
                       "flex size-8 items-center justify-center rounded-full border text-xs font-semibold",
-                      completed && "border-primary bg-primary text-primary-foreground",
-                      active && "border-primary bg-primary/10 text-primary",
-                      !completed && !active && "border-border bg-background text-muted-foreground",
+                      highlighted && "border-primary bg-primary text-primary-foreground",
+                      activeWorking && "border-primary bg-primary/10 text-primary",
+                      !highlighted && !activeWorking && "border-border bg-background text-muted-foreground",
                     )}
                   >
                     {idx + 1}
@@ -104,7 +122,7 @@ export function OrderTimeline({ status, deliveryMethod }: OrderTimelineProps) {
                     className={cn(
                       "mt-3 text-sm leading-tight",
                       active ? "font-semibold text-foreground" : "text-muted-foreground",
-                      completed && "font-medium text-foreground",
+                      highlighted && "font-medium text-foreground",
                     )}
                   >
                     {step.label}
@@ -115,6 +133,12 @@ export function OrderTimeline({ status, deliveryMethod }: OrderTimelineProps) {
           })}
         </div>
       </div>
+
+      {statusDescription ? (
+        <p className="mt-5 rounded-xl bg-secondary/30 p-4 text-sm text-muted-foreground">
+          {statusDescription}
+        </p>
+      ) : null}
     </div>
   )
 }

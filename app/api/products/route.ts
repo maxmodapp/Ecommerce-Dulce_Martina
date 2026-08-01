@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { productGenderWhere } from "@/lib/catalog"
 import { prisma } from "@/lib/prisma"
 
 export async function GET(req: Request) {
@@ -6,10 +7,14 @@ export async function GET(req: Request) {
 
   const q = (searchParams.get("q") || "").trim()
   const categoriaSlug = (searchParams.get("categoria") || "").trim()
+  const subcategoriaSlug = (searchParams.get("subcategoria") || "").trim()
+  const genero = (searchParams.get("genero") || "").trim()
+  const genderWhere = productGenderWhere(genero)
 
   const productos = await prisma.productos.findMany({
     where: {
       active: true,
+      ...(genderWhere ? { genero: genderWhere } : {}),
       ...(q
         ? {
             OR: [
@@ -18,10 +23,21 @@ export async function GET(req: Request) {
             ],
           }
         : {}),
-      ...(categoriaSlug ? { categorias: { slug: categoriaSlug } } : {}),
+      subcategorias: {
+        active: true,
+        ...(subcategoriaSlug ? { slug: subcategoriaSlug } : {}),
+        categorias: {
+          active: true,
+          ...(categoriaSlug ? { slug: categoriaSlug } : {}),
+        },
+      },
     },
     include: {
-      categorias: true,
+      subcategorias: {
+        include: {
+          categorias: true,
+        },
+      },
       variantes: {
         where: { active: true },
         orderBy: [{ sort_order: "asc" }, { id: "asc" }],
@@ -43,19 +59,28 @@ export async function GET(req: Request) {
     slug: p.slug,
     descripcion: p.descripcion,
     precio: p.precio,
+    genero: p.genero,
     active: p.active,
     created_at: p.created_at,
     update_at: p.update_at,
 
-    categoria: p.categorias
+    categoria: p.subcategorias?.categorias
       ? {
-          id: p.categorias.id.toString(),
-          nombre: p.categorias.nombre,
-          slug: p.categorias.slug,
+          id: p.subcategorias.categorias.id.toString(),
+          nombre: p.subcategorias.categorias.nombre,
+          slug: p.subcategorias.categorias.slug,
         }
       : null,
 
-    // ✅ ÚNICO campo para UI (color + url)
+    subcategoria: p.subcategorias
+      ? {
+          id: p.subcategorias.id.toString(),
+          nombre: p.subcategorias.nombre,
+          slug: p.subcategorias.slug,
+          audiencia: p.subcategorias.audiencia,
+        }
+      : null,
+
     variantes: p.variantes.map((v) => ({
       id: v.id.toString(),
       sort_order: v.sort_order,

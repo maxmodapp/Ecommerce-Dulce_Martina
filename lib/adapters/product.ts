@@ -1,21 +1,45 @@
 import type {
+  Audience,
   Product,
-  Category,
-  VariantPreview,
   ProductVariantDetail,
+  PublicCategory,
+  PublicSubcategory,
+  VariantPreview,
 } from "@/lib/types"
 
 const FALLBACK_IMG = "/placeholder.jpg"
 const DEFAULT_CARE = "Lavar a mano o en ciclo delicado. No usar blanqueador."
-const DEFAULT_SHIPPING = "Envíos a todo el país. Cambios dentro de los 10 días."
+const DEFAULT_SHIPPING = "Envios a todo el pais. Cambios dentro de los 10 dias."
 
-function safeCategory(slug: string): Category {
-  if (slug === "remeras" || slug === "pantalones" || slug === "ropa-interior") return slug
-  return "remeras"
+function safeAudience(value: unknown): Audience {
+  return value === "HOMBRE" || value === "MUJER" || value === "AMBOS" ? value : "AMBOS"
+}
+
+function mapCategory(raw: any): PublicCategory | null {
+  if (!raw) return null
+
+  return {
+    id: String(raw.id),
+    name: String(raw.nombre ?? raw.name ?? ""),
+    slug: String(raw.slug ?? ""),
+  }
+}
+
+function mapSubcategory(raw: any, category: PublicCategory | null): PublicSubcategory | null {
+  if (!raw || !category) return null
+
+  return {
+    id: String(raw.id),
+    name: String(raw.nombre ?? raw.name ?? ""),
+    slug: String(raw.slug ?? ""),
+    audience: safeAudience(raw.audiencia ?? raw.audience),
+    category,
+  }
 }
 
 export function apiListToUI(p: any): Product {
-  const categorySlug = p?.categoria?.slug ?? "remeras"
+  const category = mapCategory(p?.categoria)
+  const subcategory = mapSubcategory(p?.subcategoria, category)
 
   const variantPreviews: VariantPreview[] = (p?.variantes ?? []).map((v: any) => ({
     id: String(v.id),
@@ -32,7 +56,9 @@ export function apiListToUI(p: any): Product {
     slug: p.slug,
     name: p.nombre,
     price: Number(p.precio),
-    category: safeCategory(categorySlug),
+    gender: safeAudience(p?.genero),
+    category,
+    subcategory,
     description: p.descripcion ?? "",
     sizes: ["S", "M", "L", "XL"],
     colors: variantPreviews.map((x) => x.name),
@@ -46,7 +72,8 @@ export function apiListToUI(p: any): Product {
 }
 
 export function apiDetailToUI(p: any): Product {
-  const categorySlug = p?.categoria?.slug ?? "remeras"
+  const category = mapCategory(p?.categoria)
+  const subcategory = mapSubcategory(p?.subcategoria, category)
 
   const variantDetails: ProductVariantDetail[] = (p?.variantes ?? []).map((v: any) => ({
     id: String(v.id),
@@ -79,13 +106,15 @@ export function apiDetailToUI(p: any): Product {
     slug: p.slug,
     name: p.nombre,
     price: Number(p.precio),
-    category: safeCategory(categorySlug),
+    gender: safeAudience(p?.genero),
+    category,
+    subcategory,
     description: p.descripcion ?? "",
     sizes: allSizes,
     colors: allColors,
     images,
     featured: false,
-    createdAt: new Date().toISOString(),
+    createdAt: p.created_at ? new Date(p.created_at).toISOString() : new Date().toISOString(),
     care: DEFAULT_CARE,
     shipping: DEFAULT_SHIPPING,
     variantDetails,

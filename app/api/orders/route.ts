@@ -111,6 +111,13 @@ export async function POST(req: Request) {
     if (payment_method !== "TRANSFER" && payment_method !== "CASH") {
       throw new ApiError(400, "payment_method debe ser TRANSFER o CASH", "VALIDATION")
     }
+    if (delivery_method === "DELIVERY" && payment_method === "CASH") {
+      throw new ApiError(
+        400,
+        "Para envios a domicilio solo esta disponible el pago por transferencia.",
+        "VALIDATION"
+      )
+    }
 
     const shipping_address = delivery_method === "DELIVERY" ? shipping_address_in : null
     if (delivery_method === "DELIVERY" && !shipping_address) {

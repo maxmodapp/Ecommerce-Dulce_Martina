@@ -1,29 +1,23 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useEffect, useState, type FormEvent } from "react"
+import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import {
-  Search,
-  ShoppingBag,
-  Menu,
-  X,
-  ChevronDown,
-  ChevronRight,
-} from "lucide-react"
+import { ChevronDown, Menu, Search, ShoppingBag, X } from "lucide-react"
 import { AccountMenu } from "@/components/account-menu"
+import { CatalogMenuContent } from "@/components/catalog-menu-content"
 import { useAuth } from "@/lib/auth-context"
 import { useCart } from "@/lib/cart-context"
 import { useCartDrawer } from "@/lib/cart-drawer-context"
 import { cn } from "@/lib/utils"
+import type { CatalogMenuCategory, MenuAudienceFilter } from "@/lib/types"
 
-const subcategories = [
-  { label: "Remeras", href: "/productos/remeras" },
-  { label: "Pantalones", href: "/productos/pantalones" },
-  { label: "Ropa Interior", href: "/productos/ropa-interior" },
-]
+type NavbarProps = {
+  catalogMenu: CatalogMenuCategory[]
+}
 
-export function Navbar() {
+export function Navbar({ catalogMenu }: NavbarProps) {
   const pathname = usePathname()
   const { totalItems } = useCart()
   const { open: openCart } = useCartDrawer()
@@ -33,6 +27,8 @@ export function Navbar() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [isScrolled, setIsScrolled] = useState(false)
+  const [productsMenuOpen, setProductsMenuOpen] = useState(false)
+  const [activeMenuFilter, setActiveMenuFilter] = useState<MenuAudienceFilter>("all")
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,127 +45,124 @@ export function Navbar() {
     window.location.href = "/"
   }
 
-  const desktopLinkClass = "px-1 py-1 text-sm font-medium text-white/60 transition-colors hover:text-white"
+  function closeSearch() {
+    setSearchOpen(false)
+    setSearchQuery("")
+  }
+
+  function toggleSearch() {
+    setSearchOpen((current) => {
+      const next = !current
+
+      if (next) {
+        setProductsMenuOpen(false)
+        setMobileOpen(false)
+      } else {
+        setSearchQuery("")
+      }
+
+      return next
+    })
+  }
+
+  function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+
+    const query = searchQuery.trim()
+    if (!query) return
+
+    window.location.href = `/productos?q=${encodeURIComponent(query)}`
+    closeSearch()
+  }
+
+  const desktopLinkClass =
+    "px-1 py-1 text-sm font-medium text-white/60 transition-colors hover:text-white"
   const iconButtonClass =
     "rounded-md p-2 text-white/82 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/25"
 
   return (
     <header
+      onMouseLeave={() => setProductsMenuOpen(false)}
       className={cn(
-        "sticky top-0 z-50 border-b  border-navbar-border bg-background-navbar/95 backdrop-blur-sm transition-all duration-300 ease-in-out",
-        isScrolled ? "h-16" : "h-20 lg:h-20"
+        "sticky top-0 z-50 border-b border-navbar-border bg-background-navbar/100 backdrop-blur-sm transition-all duration-300 ease-in-out",
+        isScrolled ? "h-16" : "h-20 lg:h-22"
       )}
     >
       <nav className="relative mx-auto h-full max-w-7xl px-4 lg:px-8">
-        {/* Top row: links left + icons right, anchored to top */}
-        <div className="absolute inset-x-0 top-0 z-10 flex items-center justify-between px-4 pt-3 lg:px-8">
-          {/* Left - Desktop links */}
-          <div className="hidden items-center gap-6 md:flex">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-30 flex items-center justify-between px-4 pt-3 lg:px-8">
+          <div className="pointer-events-auto hidden items-center gap-6 md:flex">
             <Link
               href="/"
-              className={cn(
-                desktopLinkClass,
-                pathname === "/" && "text-white"
-              )}
+              className={cn(desktopLinkClass, pathname === "/" && "text-white")}
             >
               Inicio
             </Link>
 
-            {/* Productos dropdown */}
-            <div className="group relative">
+            <div
+              className="group"
+              onMouseEnter={() => {
+                setProductsMenuOpen(true)
+                closeSearch()
+              }}
+            >
               <Link
                 href="/productos"
                 className={cn(
                   desktopLinkClass,
                   "flex items-center gap-1",
-                  pathname.startsWith("/productos")
+                  pathname.startsWith("/productos") || pathname.startsWith("/producto")
                     ? "text-white"
                     : ""
                 )}
               >
                 Productos
-                <ChevronDown className="size-3.5 transition-transform group-hover:rotate-180" />
+                <ChevronDown
+                  className={cn(
+                    "size-3.5 transition-transform",
+                    productsMenuOpen && "rotate-180"
+                  )}
+                />
               </Link>
-
-              {/* Mega menu */}
-              <div className="invisible absolute left-0 top-full pt-2 opacity-0 transition-all group-hover:visible group-hover:opacity-100">
-                <div className="min-w-48 rounded-lg border border-border bg-card p-2 shadow-lg">
-                  {subcategories.map((cat) => (
-                    <Link
-                      key={cat.href}
-                      href={cat.href}
-                      className="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm text-card-foreground transition-colors hover:bg-muted"
-                    >
-                      <ChevronRight className="size-3.5 text-muted-foreground" />
-                      {cat.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
             </div>
 
             <Link
               href="/nosotros"
-              className={cn(
-                desktopLinkClass,
-                pathname === "/nosotros" && "text-white"
-              )}
+              className={cn(desktopLinkClass, pathname === "/nosotros" && "text-white")}
             >
               Nosotros
             </Link>
+
+            {user?.role === "ADMIN" ? (
+              <Link
+                href="/admin"
+                className={cn(desktopLinkClass, pathname.startsWith("/admin") && "text-white")}
+              >
+                Admin
+              </Link>
+            ) : null}
           </div>
 
-          {/* Spacer for mobile (no left links) */}
-          <div className="md:hidden" />
+          <button
+            onClick={toggleSearch}
+            className={cn(iconButtonClass, "pointer-events-auto md:hidden")}
+            aria-label={searchOpen ? "Cerrar busqueda" : "Buscar"}
+          >
+            {searchOpen ? <X className="size-5" /> : <Search className="size-5" />}
+          </button>
 
-          {/* Right - Icons */}
-          <div className="flex items-center gap-2">
-            {/* Search */}
-            {searchOpen ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Buscar..."
-                  className="h-8 w-32 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring sm:w-48"
-                  autoFocus
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && searchQuery.trim()) {
-                      window.location.href = `/productos?q=${encodeURIComponent(searchQuery.trim())}`
-                      setSearchOpen(false)
-                      setSearchQuery("")
-                    }
-                    if (e.key === "Escape") {
-                      setSearchOpen(false)
-                      setSearchQuery("")
-                    }
-                  }}
-                />
-                <button
-                  onClick={() => {
-                    setSearchOpen(false)
-                    setSearchQuery("")
-                  }}
-                  className="rounded-md p-1.5 text-white/82 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/25"
-                  aria-label="Cerrar busqueda"
-                >
-                  <X className="size-4" />
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setSearchOpen(true)}
-                className={iconButtonClass}
-                aria-label="Buscar"
-              >
-                <Search className="size-5" />
-              </button>
-            )}
+          <div className="pointer-events-auto flex items-center gap-2">
+            <button
+              onClick={toggleSearch}
+              className={cn(iconButtonClass, "hidden md:inline-flex")}
+              aria-label={searchOpen ? "Cerrar busqueda" : "Buscar"}
+            >
+              {searchOpen ? <X className="size-5" /> : <Search className="size-5" />}
+            </button>
 
-            <AccountMenu />
+            <div className="hidden md:block">
+              <AccountMenu />
+            </div>
 
-            {/* Cart */}
             <button
               onClick={openCart}
               className={cn("relative", iconButtonClass)}
@@ -183,161 +176,201 @@ export function Navbar() {
               )}
             </button>
 
-            {/* Mobile hamburger */}
             <button
-              onClick={() => setMobileOpen(!mobileOpen)}
+              onClick={() => {
+                setMobileOpen(!mobileOpen)
+                setSearchOpen(false)
+              }}
               className={cn(iconButtonClass, "md:hidden")}
               aria-label={mobileOpen ? "Cerrar menu" : "Abrir menu"}
             >
-              {mobileOpen ? (
-                <X className="size-5" />
-              ) : (
-                <Menu className="size-5" />
-              )}
+              {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
             </button>
           </div>
         </div>
-
-        {/* Center - Logo, vertically centered in the full header height 
-        <div className="flex h-full items-center justify-center">
-          <Link href="/" className={cn(
-      "relative block transition-transform duration-300 ease-in-out",
-      // baja un poquito en ambos estados (ajustá los números)
-      isScrolled ? "translate-y-1" : "translate-y-1 lg:translate-y-1"
-    )}>
-            <Image
-              src="/text3w.png"
-              alt="Dulce Martina"
-              width={220}
-              height={60}
-              priority
-              className={cn(
-                "object-contain w-auto transition-all duration-300 ease-in-out",
-                isScrolled ? "h-[200px]" : "h-[200px] lg:h-[300px]"
-              )}
-            />
-          </Link>
-        </div>
-        */}
-
-        {/* Center - Brand text */}
 
         <div className="flex h-full items-center justify-center">
           <Link
             href="/"
             className={cn(
-              "font-serif text-xl font-bold tracking-wide text-white transition-all duration-300",
-              isScrolled ? "-translate-y-1 text-xl" : "translate-y-1 lg:-translate-y-1 lg:text-3xl"
+              "relative z-20 flex min-h-14 min-w-40 items-center justify-center px-6 transition-all duration-300 sm:min-w-52",
+              isScrolled ? "-translate-y-0" : "translate-y-0 lg:-translate-y-0"
             )}
+            aria-label="Ir al inicio"
           >
-            Dulce Martina
+            <Image
+              src="/text4.png"
+              alt="Dulce Martina"
+              width={2048}
+              height={415}
+              priority
+              className={cn(
+                "h-auto w-auto object-contain transition-all duration-300",
+                isScrolled ? "max-h-10" : "max-h-10 lg:max-h-14"
+              )}
+            />
           </Link>
         </div>
       </nav>
 
-      {/* Mobile menu */}
+      {searchOpen && (
+        <div className="absolute left-0 right-0 top-full z-50 border-t border-navbar-border bg-background-navbar shadow-sm">
+          <form
+            onSubmit={handleSearchSubmit}
+            className="mx-auto max-w-7xl px-4 py-3 lg:px-8"
+          >
+            <div className="flex w-full gap-2 md:ml-auto md:max-w-xl">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(event) => setSearchQuery(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") closeSearch()
+                }}
+                placeholder="Buscar..."
+                className="h-10 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-white/25"
+                autoFocus
+              />
+              <button
+                type="submit"
+                className="flex size-10 items-center justify-center rounded-md bg-white text-black transition-colors hover:bg-white/85 focus:outline-none focus:ring-2 focus:ring-white/25"
+                aria-label="Enviar busqueda"
+              >
+                <Search className="size-4" />
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <div
+        onMouseEnter={() => {
+          setProductsMenuOpen(true)
+          setSearchOpen(false)
+        }}
+        className={cn(
+          "absolute left-0 right-0 top-full z-40 hidden border-y border-border bg-white text-foreground shadow-sm transition-all md:block",
+          productsMenuOpen ? "visible opacity-100" : "invisible opacity-0"
+        )}
+      >
+        <CatalogMenuContent
+          catalogMenu={catalogMenu}
+          activeMenuFilter={activeMenuFilter}
+          onFilterChange={setActiveMenuFilter}
+        />
+      </div>
+
       {mobileOpen && (
-        <div className="border-t border-navbar-border bg-background-navbar md:hidden">
-          <div className="mx-auto max-w-7xl px-4 py-4">
-            <div className="flex flex-col gap-1">
-              <Link
-                href="/"
-                onClick={() => setMobileOpen(false)}
-                className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
-              >
-                Inicio
-              </Link>
+        <>
+          <button
+            type="button"
+            className="fixed inset-0 z-40 cursor-default bg-black/20 md:hidden"
+            onClick={() => setMobileOpen(false)}
+            aria-label="Cerrar menu"
+          />
+          <div className="absolute left-0 right-0 top-full z-50 md:hidden">
+            <div className="max-h-[calc(100svh-4rem)] overflow-y-auto border-t border-navbar-border bg-background-navbar shadow-lg">
+              <div className="mx-auto max-w-7xl px-4 py-4">
+                <div className="flex flex-col gap-1">
+                  <Link
+                    href="/"
+                    onClick={() => setMobileOpen(false)}
+                    className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                  >
+                    Inicio
+                  </Link>
 
-              {/* Productos with sub */}
-              <div>
-                <button
-                  onClick={() => setMobileSubOpen(!mobileSubOpen)}
-                  className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
-                  aria-expanded={mobileSubOpen}
-                >
-                  Productos
-                  <ChevronDown
-                    className={cn(
-                      "size-4 transition-transform",
-                      mobileSubOpen && "rotate-180"
-                    )}
-                  />
-                </button>
-                {mobileSubOpen && (
-                  <div className="ml-4 flex flex-col gap-1 py-1">
-                    <Link
-                      href="/productos"
-                      onClick={() => setMobileOpen(false)}
-                      className="rounded-md px-3 py-2 text-sm text-white/72 transition-colors hover:bg-white/10 hover:text-white"
+                  <div>
+                    <button
+                      onClick={() => setMobileSubOpen(!mobileSubOpen)}
+                      className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                      aria-expanded={mobileSubOpen}
                     >
-                      Todos los productos
-                    </Link>
-                    {subcategories.map((cat) => (
-                      <Link
-                        key={cat.href}
-                        href={cat.href}
-                        onClick={() => setMobileOpen(false)}
-                        className="rounded-md px-3 py-2 text-sm text-white/72 transition-colors hover:bg-white/10 hover:text-white"
-                      >
-                        {cat.label}
-                      </Link>
-                    ))}
+                      Productos
+                      <ChevronDown
+                        className={cn(
+                          "size-4 transition-transform",
+                          mobileSubOpen && "rotate-180"
+                        )}
+                      />
+                    </button>
+
+                    {mobileSubOpen && (
+                      <CatalogMenuContent
+                        catalogMenu={catalogMenu}
+                        activeMenuFilter={activeMenuFilter}
+                        onFilterChange={setActiveMenuFilter}
+                        onNavigate={() => setMobileOpen(false)}
+                        variant="mobile"
+                        className="px-3 py-3"
+                      />
+                    )}
                   </div>
-                )}
+
+                  <Link
+                    href="/nosotros"
+                    onClick={() => setMobileOpen(false)}
+                    className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                  >
+                    Nosotros
+                  </Link>
+
+                  {user?.role === "ADMIN" ? (
+                    <Link
+                      href="/admin"
+                      onClick={() => setMobileOpen(false)}
+                      className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                    >
+                      Admin
+                    </Link>
+                  ) : null}
+
+                  {user ? (
+                    <>
+                      <Link
+                        href="/mi-cuenta"
+                        onClick={() => setMobileOpen(false)}
+                        className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                      >
+                        Mi cuenta
+                      </Link>
+                      <Link
+                        href="/mis-pedidos"
+                        onClick={() => setMobileOpen(false)}
+                        className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                      >
+                        Mis pedidos
+                      </Link>
+                      <button
+                        onClick={() => void handleMobileLogout()}
+                        className="rounded-md px-3 py-2.5 text-left text-sm font-medium text-white transition-colors hover:bg-white/10"
+                      >
+                        Cerrar sesion
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        onClick={() => setMobileOpen(false)}
+                        className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                      >
+                        Iniciar sesion
+                      </Link>
+                      <Link
+                        href="/registro"
+                        onClick={() => setMobileOpen(false)}
+                        className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
+                      >
+                        Registrarse
+                      </Link>
+                    </>
+                  )}
+                </div>
               </div>
-
-              <Link
-                href="/nosotros"
-                onClick={() => setMobileOpen(false)}
-                className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
-              >
-                Nosotros
-              </Link>
-
-              {user ? (
-                <>
-                  <Link
-                    href="/mi-cuenta"
-                    onClick={() => setMobileOpen(false)}
-                    className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
-                  >
-                    Mi cuenta
-                  </Link>
-                  <Link
-                    href="/mis-pedidos"
-                    onClick={() => setMobileOpen(false)}
-                    className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
-                  >
-                    Mis pedidos
-                  </Link>
-                  <button
-                    onClick={() => void handleMobileLogout()}
-                    className="rounded-md px-3 py-2.5 text-left text-sm font-medium text-white transition-colors hover:bg-white/10"
-                  >
-                    Cerrar sesión
-                  </button>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/login"
-                    onClick={() => setMobileOpen(false)}
-                    className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
-                  >
-                    Iniciar sesión
-                  </Link>
-                  <Link
-                    href="/registro"
-                    onClick={() => setMobileOpen(false)}
-                    className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
-                  >
-                    Registrarse
-                  </Link>
-                </>
-              )}
             </div>
           </div>
-        </div>
+        </>
       )}
     </header>
   )

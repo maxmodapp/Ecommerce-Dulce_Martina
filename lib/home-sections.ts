@@ -3,7 +3,7 @@ import "server-only"
 import { Prisma } from "@prisma/client"
 import { prisma } from "@/lib/prisma"
 import { apiListToUI } from "@/lib/adapters/product"
-import type { AdminHomeSectionItem, HomeSection, Product } from "@/lib/types"
+import type { AdminHomeSectionItem, Audience, HomeSection, Product } from "@/lib/types"
 import {
   HOME_SECTION_LABELS,
   HOME_SECTION_ROUTE_SEGMENTS,
@@ -18,10 +18,17 @@ type ProductSectionProductRow = {
   precio: number
   active: boolean
   created_at: Date
-  categorias: {
+  genero: Audience
+  subcategorias: {
     id: bigint
     nombre: string
     slug: string
+    audiencia: Audience
+    categorias: {
+      id: bigint
+      nombre: string
+      slug: string
+    }
   } | null
   variantes: Array<{
     id: bigint
@@ -58,11 +65,20 @@ function mapSectionProductToUi(product: ProductSectionProductRow): Product {
     precio: product.precio,
     active: product.active,
     created_at: product.created_at,
-    categoria: product.categorias
+    genero: product.genero,
+    categoria: product.subcategorias?.categorias
       ? {
-          id: product.categorias.id.toString(),
-          nombre: product.categorias.nombre,
-          slug: product.categorias.slug,
+          id: product.subcategorias.categorias.id.toString(),
+          nombre: product.subcategorias.categorias.nombre,
+          slug: product.subcategorias.categorias.slug,
+        }
+      : null,
+    subcategoria: product.subcategorias
+      ? {
+          id: product.subcategorias.id.toString(),
+          nombre: product.subcategorias.nombre,
+          slug: product.subcategorias.slug,
+          audiencia: product.subcategorias.audiencia,
         }
       : null,
     variantes: product.variantes.map((variant) => ({
@@ -91,11 +107,24 @@ function mapAdminSectionItem(item: ProductSectionRow): AdminHomeSectionItem {
       slug: item.productos.slug,
       price: item.productos.precio,
       active: item.productos.active,
-      category: item.productos.categorias
+      category: item.productos.subcategorias?.categorias
         ? {
-            id: item.productos.categorias.id.toString(),
-            name: item.productos.categorias.nombre,
-            slug: item.productos.categorias.slug,
+            id: item.productos.subcategorias.categorias.id.toString(),
+            name: item.productos.subcategorias.categorias.nombre,
+            slug: item.productos.subcategorias.categorias.slug,
+          }
+        : null,
+      subcategory: item.productos.subcategorias
+        ? {
+            id: item.productos.subcategorias.id.toString(),
+            name: item.productos.subcategorias.nombre,
+            slug: item.productos.subcategorias.slug,
+            audience: item.productos.subcategorias.audiencia,
+            category: {
+              id: item.productos.subcategorias.categorias.id.toString(),
+              name: item.productos.subcategorias.categorias.nombre,
+              slug: item.productos.subcategorias.categorias.slug,
+            },
           }
         : null,
       coverImageUrl,
@@ -113,7 +142,11 @@ function sectionQuery(section: HomeSection, onlyActiveProducts: boolean) {
     include: {
       productos: {
         include: {
-          categorias: true,
+          subcategorias: {
+            include: {
+              categorias: true,
+            },
+          },
           variantes: {
             where: onlyActiveProducts ? { active: true } : undefined,
             orderBy: [{ sort_order: "asc" as const }, { id: "asc" as const }],

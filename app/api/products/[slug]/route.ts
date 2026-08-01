@@ -10,7 +10,11 @@ export async function GET(
   const producto = await prisma.productos.findUnique({
     where: { slug },
     include: {
-      categorias: true,
+      subcategorias: {
+        include: {
+          categorias: true,
+        },
+      },
       variantes: {
         where: { active: true },
         include: {
@@ -22,7 +26,12 @@ export async function GET(
     },
   })
 
-  if (!producto || !producto.active) {
+  if (
+    !producto ||
+    !producto.active ||
+    !producto.subcategorias.active ||
+    !producto.subcategorias.categorias.active
+  ) {
     return NextResponse.json({ error: "Producto no encontrado" }, { status: 404 })
   }
 
@@ -33,13 +42,19 @@ export async function GET(
       slug: producto.slug,
       descripcion: producto.descripcion,
       precio: producto.precio,
-      categoria: producto.categorias
-        ? {
-            id: producto.categorias.id.toString(),
-            nombre: producto.categorias.nombre,
-            slug: producto.categorias.slug,
-          }
-        : null,
+      genero: producto.genero,
+      created_at: producto.created_at,
+      categoria: {
+        id: producto.subcategorias.categorias.id.toString(),
+        nombre: producto.subcategorias.categorias.nombre,
+        slug: producto.subcategorias.categorias.slug,
+      },
+      subcategoria: {
+        id: producto.subcategorias.id.toString(),
+        nombre: producto.subcategorias.nombre,
+        slug: producto.subcategorias.slug,
+        audiencia: producto.subcategorias.audiencia,
+      },
       variantes: producto.variantes.map((v) => ({
         id: v.id.toString(),
         nombre_color: v.nombre_color,

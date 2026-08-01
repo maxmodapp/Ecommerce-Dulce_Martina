@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { getDeliveryMethodLabel, getPaymentMethodLabel } from "@/lib/order-display"
 import { requireAdminPageUser } from "@/lib/admin"
 import { getAdminOrderById } from "@/lib/admin-orders"
+import { getSafeInternalPath } from "@/lib/utils"
 
 export const metadata = {
   title: "Detalle del pedido | Administracion",
@@ -16,11 +17,15 @@ export const metadata = {
 
 export default async function AdminPedidoDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams?: Promise<{ returnTo?: string }>
 }) {
   await requireAdminPageUser("/admin/pedidos")
   const { id } = await params
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const returnHref = getSafeInternalPath(resolvedSearchParams?.returnTo, "/admin/pedidos")
   const detail = await getAdminOrderById(id)
 
   if (!detail) notFound()
@@ -36,7 +41,7 @@ export default async function AdminPedidoDetailPage({
             </CardTitle>
           </div>
           <Button asChild variant="outline" className="w-full sm:w-auto">
-            <Link href="/admin/pedidos">
+            <Link href={returnHref}>
               <ArrowLeft className="size-4" />
               Volver a pedidos
             </Link>
@@ -81,6 +86,7 @@ export default async function AdminPedidoDetailPage({
             <AdminOrderStatusSelect
               orderId={detail.order.id}
               deliveryMethod={detail.order.deliveryMethod}
+              paymentMethod={detail.order.paymentMethod}
               status={detail.order.status}
               refreshOnSuccess
             />

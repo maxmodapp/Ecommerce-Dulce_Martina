@@ -4,7 +4,8 @@ import { ArrowLeft } from "lucide-react"
 import { AdminProductDetailView } from "@/components/admin-product-detail"
 import { Button } from "@/components/ui/button"
 import { requireAdminPageUser } from "@/lib/admin"
-import { getAdminCategories, getAdminProductById } from "@/lib/admin-products"
+import { getAdminProductById, getAdminSubcategoryOptions } from "@/lib/admin-products"
+import { getSafeInternalPath } from "@/lib/utils"
 
 export const metadata = {
   title: "Producto | Administracion",
@@ -13,15 +14,19 @@ export const metadata = {
 
 export default async function AdminProductoDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams?: Promise<{ returnTo?: string }>
 }) {
   await requireAdminPageUser("/admin/productos")
   const { id } = await params
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const returnHref = getSafeInternalPath(resolvedSearchParams?.returnTo, "/admin/productos")
 
-  const [product, categories] = await Promise.all([
+  const [product, subcategories] = await Promise.all([
     getAdminProductById(id),
-    getAdminCategories(),
+    getAdminSubcategoryOptions(),
   ])
 
   if (!product) notFound()
@@ -43,7 +48,7 @@ export default async function AdminProductoDetailPage({
         </div>
 
         <Button asChild variant="outline" className="w-full sm:w-auto">
-          <Link href="/admin/productos">
+          <Link href={returnHref}>
             <ArrowLeft className="size-4" />
             Volver a productos
           </Link>
@@ -51,7 +56,7 @@ export default async function AdminProductoDetailPage({
       </div>
 
       <div className="mt-8">
-        <AdminProductDetailView initialProduct={product} categories={categories} />
+        <AdminProductDetailView initialProduct={product} subcategories={subcategories} />
       </div>
     </div>
   )

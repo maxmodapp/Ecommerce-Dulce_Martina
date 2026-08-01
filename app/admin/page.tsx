@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { House, Package, ShoppingBag } from "lucide-react"
+import { House, Package, ShoppingBag, Tags } from "lucide-react"
 import { requireAdminPageUser } from "@/lib/admin"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -26,6 +26,12 @@ const adminSections = [
     description: "Gestiona productos, variantes, imagenes y stock desde el panel admin.",
     href: "/admin/productos",
     icon: ShoppingBag,
+  },
+  {
+    title: "Categorias",
+    description: "Administra categorias, subcategorias y su visibilidad en el menu.",
+    href: "/admin/categorias",
+    icon: Tags,
   },
 ]
 

@@ -4,7 +4,7 @@ import { AdminProductCreateForm } from "@/components/admin-product-create-form"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { requireAdminPageUser } from "@/lib/admin"
-import { getAdminCategories } from "@/lib/admin-products"
+import { getAdminSubcategoryOptions } from "@/lib/admin-products"
 
 export const metadata = {
   title: "Nuevo producto | Administracion",
@@ -13,7 +13,7 @@ export const metadata = {
 
 export default async function AdminNuevoProductoPage() {
   await requireAdminPageUser("/admin/productos/nuevo")
-  const categories = await getAdminCategories()
+  const subcategories = await getAdminSubcategoryOptions()
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 lg:px-8">
@@ -44,7 +44,7 @@ export default async function AdminNuevoProductoPage() {
           <CardTitle className="text-xl">Datos generales</CardTitle>
         </CardHeader>
         <CardContent>
-          <AdminProductCreateForm categories={categories} />
+          <AdminProductCreateForm subcategories={subcategories} />
         </CardContent>
       </Card>
     </div>

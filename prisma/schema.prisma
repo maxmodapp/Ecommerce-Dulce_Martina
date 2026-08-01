@@ -6,11 +6,42 @@ datasource db {
   provider = "postgresql"
 }
 
+enum audiencia {
+  HOMBRE
+  MUJER
+  AMBOS
+}
+
 model categorias {
-  id        BigInt      @id(map: "categoria_pkey") @default(autoincrement())
-  nombre    String
-  slug      String      @unique(map: "categoria_slug_key")
-  productos productos[]
+  id              BigInt          @id(map: "categoria_pkey") @default(autoincrement())
+  nombre          String
+  slug            String          @unique(map: "categoria_slug_key")
+  image_url       String?
+  image_public_id String?
+  active          Boolean         @default(true)
+  sort_order      Int             @default(0)
+  subcategorias   subcategorias[]
+
+  @@index([active, sort_order, id], map: "idx_categorias_active_sort")
+}
+
+model subcategorias {
+  id           BigInt      @id @default(autoincrement())
+  categoria_id BigInt
+  nombre       String
+  slug         String
+  audiencia    audiencia   @default(AMBOS)
+  active       Boolean     @default(true)
+  sort_order   Int         @default(0)
+  created_at   DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime    @default(now()) @db.Timestamptz(6)
+  categorias   categorias  @relation(fields: [categoria_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  productos    productos[]
+
+  @@unique([categoria_id, slug], map: "uq_subcategorias_categoria_slug")
+  @@index([categoria_id], map: "idx_subcategorias_categoria")
+  @@index([active, sort_order, id], map: "idx_subcategorias_active_sort")
+  @@index([audiencia], map: "idx_subcategorias_audiencia")
 }
 
 model orden_productos {
@@ -47,20 +78,22 @@ model ordenes {
 }
 
 model productos {
-  id           BigInt      @id @default(autoincrement())
-  nombre       String
-  slug         String      @unique
-  descripcion  String?
-  categoria_id BigInt?
-  precio       Int
-  active       Boolean     @default(true)
-  created_at   DateTime    @default(now()) @db.Timestamptz(6)
-  update_at    DateTime    @default(now()) @db.Timestamptz(6)
-  categorias   categorias? @relation(fields: [categoria_id], references: [id], onUpdate: NoAction)
+  id                    BigInt                  @id @default(autoincrement())
+  nombre                String
+  slug                  String                  @unique
+  descripcion           String?
+  subcategoria_id       BigInt
+  genero                audiencia               @default(AMBOS)
+  precio                Int
+  active                Boolean                 @default(true)
+  created_at            DateTime                @default(now()) @db.Timestamptz(6)
+  update_at             DateTime                @default(now()) @db.Timestamptz(6)
+  subcategorias         subcategorias           @relation(fields: [subcategoria_id], references: [id], onUpdate: NoAction)
   home_product_sections home_product_sections[]
-  variantes    variantes[]
+  variantes             variantes[]
 
-  @@index([categoria_id], map: "idx_productos_categoria")
+  @@index([subcategoria_id], map: "idx_productos_subcategoria")
+  @@index([genero], map: "idx_productos_genero")
 }
 
 model usuarios {
@@ -89,6 +122,19 @@ model home_product_sections {
   @@index([section, sort_order, id], map: "idx_home_product_sections_section_sort")
 }
 
+model ImagenPortada {
+  id              Int     @id @default(autoincrement())
+  desktopUrl      String  @map("desktop_url")
+  mobileUrl       String  @map("mobile_url")
+  desktopPublicId String? @map("desktop_public_id")
+  mobilePublicId  String? @map("mobile_public_id")
+  href            String?
+  sortOrder       Int     @default(0) @map("sort_order")
+
+  @@index([sortOrder, id], map: "idx_imagenes_portada_sort")
+  @@map("imagenes_portada")
+}
+
 model variante_imagenes {
   id         BigInt    @id @default(autoincrement())
   variant_id BigInt
@@ -114,14 +160,14 @@ model variante_talles {
 }
 
 model variantes {
-  id                BigInt              @id @default(autoincrement())
-  product_id        BigInt
-  nombre_color      String
-  color_hex         String?
-  active            Boolean             @default(true)
+  id           BigInt  @id @default(autoincrement())
+  product_id   BigInt
+  nombre_color String
+  color_hex    String?
+  active       Boolean @default(true)
 
   // ✅ NUEVO
-  sort_order        Int                 @default(0)
+  sort_order Int @default(0)
 
   variante_imagenes variante_imagenes[]
   variante_talles   variante_talles[]
@@ -129,7 +175,6 @@ model variantes {
 
   @@unique([product_id, nombre_color], map: "uq_variantes_producto_color")
   @@index([product_id], map: "idx_variantes_producto")
-
   // (para ordenar rápido por producto)
   @@index([product_id, sort_order, id], map: "idx_variantes_producto_sort")
 }

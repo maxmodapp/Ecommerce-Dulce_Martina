@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { isAudience } from "@/lib/catalog"
 import { AdminApiError, adminJsonError, requireAdminApiUser } from "@/lib/admin"
 import {
   getAdminProductById,
@@ -31,7 +32,8 @@ function parseProductInput(body: any) {
   const name = typeof body?.name === "string" ? body.name.trim() : ""
   const slugSource = typeof body?.slug === "string" ? body.slug.trim().toLowerCase() : ""
   const descriptionSource = typeof body?.description === "string" ? body.description.trim() : ""
-  const categoryId = typeof body?.categoryId === "string" ? body.categoryId.trim() : ""
+  const subcategoryId = typeof body?.subcategoryId === "string" ? body.subcategoryId.trim() : ""
+  const gender = body?.gender
   const price = Number(body?.price)
   const active = Boolean(body?.active)
 
@@ -51,11 +53,20 @@ function parseProductInput(body: any) {
     throw new AdminApiError(400, "Ingresa un precio valido.", "INVALID_PRICE")
   }
 
+  if (!/^[0-9]+$/.test(subcategoryId) || BigInt(subcategoryId) <= ZERO) {
+    throw new AdminApiError(400, "Selecciona una subcategoria valida.", "INVALID_SUBCATEGORY")
+  }
+
+  if (!isAudience(gender)) {
+    throw new AdminApiError(400, "Selecciona un genero valido.", "INVALID_GENDER")
+  }
+
   return {
     name,
     slug: slugSource,
     description: descriptionSource ? descriptionSource : null,
-    categoryId: categoryId || null,
+    subcategoryId,
+    gender,
     price,
     active,
   }
@@ -120,7 +131,8 @@ export async function PATCH(
       (body as any)?.name == null &&
       (body as any)?.slug == null &&
       (body as any)?.description == null &&
-      (body as any)?.categoryId == null &&
+      (body as any)?.subcategoryId == null &&
+      (body as any)?.gender == null &&
       (body as any)?.price == null
     ) {
       const product = await setAdminProductActive(resolvedId, (body as any).active)

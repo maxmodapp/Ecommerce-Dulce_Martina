@@ -40,7 +40,7 @@ export function HomeProductCarousel({
         </Link>
       </div>
 
-      <div className="relative px-10 sm:px-12">
+      <div className="relative">
         <Carousel
           opts={{
             align: "start",
@@ -48,15 +48,15 @@ export function HomeProductCarousel({
           }}
           className="w-full"
         >
-          <CarouselContent>
+          <CarouselContent className="items-stretch">
             {products.map((product) => (
-              <CarouselItem key={product.id} className="basis-1/2 md:basis-1/4">
+              <CarouselItem key={product.id} className="flex basis-1/2 md:basis-1/4">
                 <ProductCard product={product} />
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="left-0 top-[calc(50%-1rem)] size-10 border-border bg-background/95 text-foreground hover:bg-background" />
-          <CarouselNext className="right-0 top-[calc(50%-1rem)] size-10 border-border bg-background/95 text-foreground hover:bg-background" />
+          <CarouselPrevious className="left-2 top-[calc(50%-1rem)] z-10 size-10 border-border bg-background/95 text-foreground hover:bg-background" />
+          <CarouselNext className="right-2 top-[calc(50%-1rem)] z-10 size-10 border-border bg-background/95 text-foreground hover:bg-background" />
         </Carousel>
       </div>
 

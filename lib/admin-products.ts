@@ -6,14 +6,29 @@ import type {
   AdminCategoryOption,
   AdminProductDetail,
   AdminProductListItem,
+  AdminSubcategoryOption,
+  Audience,
   AdminProductVariantItem,
   HomeSection,
 } from "@/lib/types"
+export { getAdminCategories, getAdminSubcategoryOptions } from "@/lib/catalog"
 
 type CategoryRow = {
   id: bigint
   nombre: string
   slug: string
+  active: boolean
+  sort_order: number
+}
+
+type SubcategoryRow = {
+  id: bigint
+  nombre: string
+  slug: string
+  audiencia: Audience
+  active: boolean
+  sort_order: number
+  categorias: CategoryRow
 }
 
 type ProductListRow = {
@@ -24,7 +39,8 @@ type ProductListRow = {
   descripcion: string | null
   precio: number
   active: boolean
-  categorias: CategoryRow | null
+  genero: Audience
+  subcategorias: SubcategoryRow
   variantes: Array<{
     variante_imagenes: Array<{
       url: string
@@ -42,8 +58,9 @@ type ProductDetailRow = {
   descripcion: string | null
   precio: number
   active: boolean
-  categoria_id: bigint | null
-  categorias: CategoryRow | null
+  genero: Audience
+  subcategoria_id: bigint
+  subcategorias: SubcategoryRow
   home_product_sections: Array<{
     section: string
   }>
@@ -72,7 +89,8 @@ export type ProductBaseInput = {
   name: string
   slug: string
   description: string | null
-  categoryId: string | null
+  subcategoryId: string
+  gender: Audience
   price: number
   active: boolean
 }
@@ -108,6 +126,22 @@ function mapCategory(category: CategoryRow | null): AdminCategoryOption | null {
     id: category.id.toString(),
     name: category.nombre,
     slug: category.slug,
+    active: category.active,
+    sortOrder: category.sort_order,
+  }
+}
+
+function mapSubcategory(subcategory: SubcategoryRow | null): AdminSubcategoryOption | null {
+  if (!subcategory) return null
+
+  return {
+    id: subcategory.id.toString(),
+    name: subcategory.nombre,
+    slug: subcategory.slug,
+    audience: subcategory.audiencia,
+    active: subcategory.active,
+    sortOrder: subcategory.sort_order,
+    category: mapCategory(subcategory.categorias)!,
   }
 }
 
@@ -150,7 +184,9 @@ function mapProductListItem(product: ProductListRow): AdminProductListItem {
     description: product.descripcion,
     price: product.precio,
     active: product.active,
-    category: mapCategory(product.categorias),
+    gender: product.genero,
+    category: mapCategory(product.subcategorias.categorias),
+    subcategory: mapSubcategory(product.subcategorias),
     coverImageUrl,
     totalStock,
   }
@@ -164,35 +200,24 @@ function mapProductDetail(product: ProductDetailRow): AdminProductDetail {
     description: product.descripcion,
     price: product.precio,
     active: product.active,
-    categoryId: product.categoria_id?.toString() ?? null,
-    category: mapCategory(product.categorias),
+    gender: product.genero,
+    subcategoryId: product.subcategoria_id.toString(),
+    category: mapCategory(product.subcategorias.categorias),
+    subcategory: mapSubcategory(product.subcategorias),
     homeSections: product.home_product_sections.map((item) => item.section as HomeSection),
     variants: product.variantes.map(mapVariant),
   }
-}
-
-export async function getAdminCategories() {
-  const categories = await prisma.categorias.findMany({
-    orderBy: { nombre: "asc" },
-    select: {
-      id: true,
-      nombre: true,
-      slug: true,
-    },
-  })
-
-  return categories.map((category) => ({
-    id: category.id.toString(),
-    name: category.nombre,
-    slug: category.slug,
-  }))
 }
 
 export async function getAdminProducts() {
   const products = await prisma.productos.findMany({
     orderBy: { created_at: "desc" },
     include: {
-      categorias: true,
+      subcategorias: {
+        include: {
+          categorias: true,
+        },
+      },
       variantes: {
         include: {
           variante_imagenes: {
@@ -215,7 +240,11 @@ export async function getAdminProductById(id: string | bigint) {
   const product = await prisma.productos.findUnique({
     where: { id: toBigIntId(id)! },
     include: {
-      categorias: true,
+      subcategorias: {
+        include: {
+          categorias: true,
+        },
+      },
       home_product_sections: {
         orderBy: [{ section: "asc" }],
         select: { section: true },
@@ -253,7 +282,8 @@ export async function createAdminProduct(input: ProductBaseInput) {
       nombre: input.name,
       slug: input.slug,
       descripcion: input.description,
-      categoria_id: toBigIntId(input.categoryId),
+      subcategoria_id: toBigIntId(input.subcategoryId)!,
+      genero: input.gender,
       precio: input.price,
       active: input.active,
     },
@@ -274,7 +304,8 @@ export async function updateAdminProduct(id: string | bigint, input: ProductBase
       nombre: input.name,
       slug: input.slug,
       descripcion: input.description,
-      categoria_id: toBigIntId(input.categoryId),
+      subcategoria_id: toBigIntId(input.subcategoryId)!,
+      genero: input.gender,
       precio: input.price,
       active: input.active,
       update_at: new Date(),

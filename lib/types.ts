@@ -1,6 +1,22 @@
-export type Category = "remeras" | "pantalones" | "ropa-interior"
+export type Audience = "HOMBRE" | "MUJER" | "AMBOS"
+export type ProductGender = Audience
+export type MenuAudienceFilter = "all" | "MUJER" | "HOMBRE"
 export type DeliveryMethod = "DELIVERY" | "PICKUP"
 export type HomeSection = "FEATURED" | "NEW_ARRIVALS"
+
+export interface PublicCategory {
+  id: string
+  name: string
+  slug: string
+}
+
+export interface PublicSubcategory {
+  id: string
+  name: string
+  slug: string
+  audience: Audience
+  category: PublicCategory
+}
 
 export type VariantPreview = {
   id: string
@@ -36,7 +52,9 @@ export interface Product {
   slug: string
   name: string
   price: number
-  category: Category
+  gender: ProductGender
+  category: PublicCategory | null
+  subcategory: PublicSubcategory | null
   description: string
   sizes: string[]
   colors: string[]
@@ -95,6 +113,7 @@ export interface OrderData {
 export type OrderStatus =
   | 'PENDING'
   | 'CONFIRMED'
+  | 'PAYMENT_CONFIRMED'
   | 'READY'
   | 'SHIPPED'
   | 'DELIVERED'
@@ -137,6 +156,26 @@ export interface AdminCategoryOption {
   id: string
   name: string
   slug: string
+  imageUrl?: string | null
+  imagePublicId?: string | null
+  active?: boolean
+  sortOrder?: number
+}
+
+export interface AdminSubcategoryOption {
+  id: string
+  name: string
+  slug: string
+  audience: Audience
+  active?: boolean
+  sortOrder?: number
+  activeProductCount?: number
+  activeProductGenders?: Audience[]
+  category: AdminCategoryOption
+}
+
+export type CatalogMenuCategory = AdminCategoryOption & {
+  subcategories: AdminSubcategoryOption[]
 }
 
 export interface AdminProductListItem {
@@ -147,7 +186,9 @@ export interface AdminProductListItem {
   description: string | null
   price: number
   active: boolean
+  gender: ProductGender
   category: AdminCategoryOption | null
+  subcategory: AdminSubcategoryOption | null
   coverImageUrl: string | null
   totalStock: number
 }
@@ -183,8 +224,10 @@ export interface AdminProductDetail {
   description: string | null
   price: number
   active: boolean
-  categoryId: string | null
+  gender: ProductGender
+  subcategoryId: string | null
   category: AdminCategoryOption | null
+  subcategory: AdminSubcategoryOption | null
   homeSections: HomeSection[]
   variants: AdminProductVariantItem[]
 }
@@ -200,8 +243,19 @@ export interface AdminHomeSectionItem {
     price: number
     active: boolean
     category: AdminCategoryOption | null
+    subcategory: AdminSubcategoryOption | null
     coverImageUrl: string | null
   }
+}
+
+export interface CoverImageItem {
+  id: string
+  desktopUrl: string
+  mobileUrl: string
+  desktopPublicId: string | null
+  mobilePublicId: string | null
+  href: string | null
+  sortOrder: number
 }
 
 export interface AdminOrderListItem {
@@ -216,19 +270,12 @@ export interface AdminOrderListItem {
   customerPhone: string
 }
 
-export const CATEGORY_LABELS: Record<Category, string> = {
-  remeras: "Remeras",
-  pantalones: "Pantalones",
-  "ropa-interior": "Ropa Interior",
-}
+export const AUDIENCE_VALUES: Audience[] = ["HOMBRE", "MUJER", "AMBOS"]
 
-export const CATEGORY_DESCRIPTIONS: Record<Category, string> = {
-  remeras:
-    "Descubri nuestra coleccion de remeras: basicas, oversize, crop tops y mas. Prendas suaves y femeninas para tu dia a dia.",
-  pantalones:
-    "Pantalones con estilo y comodidad. Desde palazzo hasta joggers, encontra el corte perfecto para cada ocasion.",
-  "ropa-interior":
-    "Lenceria delicada y elegante. Conjuntos, bralettes y bodys confeccionados con los mejores materiales para que te sientas unica.",
+export const AUDIENCE_LABELS: Record<Audience, string> = {
+  HOMBRE: "Hombre",
+  MUJER: "Mujer",
+  AMBOS: "Unisex/Ambos",
 }
 
 export const HOME_SECTION_VALUES: HomeSection[] = ["FEATURED", "NEW_ARRIVALS"]

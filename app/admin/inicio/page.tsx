@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowLeft, Sparkles, Star } from "lucide-react"
+import { ArrowLeft, ImageIcon, Sparkles, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { requireAdminPageUser } from "@/lib/admin"
@@ -10,6 +10,12 @@ export const metadata = {
 }
 
 const homeSections = [
+  {
+    title: "Portada",
+    description: "Administra las imagenes grandes de la portada de la home.",
+    href: "/admin/inicio/portada",
+    icon: ImageIcon,
+  },
   {
     title: "Destacados",
     description:

@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ArrowLeft } from "lucide-react"
 import { requireAdminPageUser } from "@/lib/admin"
 import { getAdminOrders } from "@/lib/admin-orders"
 import { AdminOrdersList } from "@/components/admin-orders-list"
@@ -20,24 +21,33 @@ function parseStatusFilter(value?: string): OrderStatus | undefined {
 export default async function AdminPedidosPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ status?: string }>
+  searchParams?: Promise<{ estado?: string; status?: string }>
 }) {
   await requireAdminPageUser("/admin/pedidos")
   const resolvedSearchParams = searchParams ? await searchParams : undefined
-  const activeStatus = parseStatusFilter(resolvedSearchParams?.status)
+  const activeStatus = parseStatusFilter(resolvedSearchParams?.estado ?? resolvedSearchParams?.status)
   const orders = await getAdminOrders({ status: activeStatus })
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 lg:px-8">
-      <div className="max-w-2xl">
-        <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">Pedidos</p>
-        <h1 className="mt-3 font-serif text-4xl font-bold text-foreground">
-          Gestion de pedidos
-        </h1>
-        <p className="mt-4 text-muted-foreground">
-          Revisa la informacion principal de cada pedido, entra al detalle y actualiza el estado
-          sin salir de la lista.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="max-w-2xl">
+          <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">Pedidos</p>
+          <h1 className="mt-3 font-serif text-4xl font-bold text-foreground">
+            Gestion de pedidos
+          </h1>
+          <p className="mt-4 text-muted-foreground">
+            Revisa la informacion principal de cada pedido, entra al detalle y actualiza el estado
+            sin salir de la lista.
+          </p>
+        </div>
+
+        <Button asChild variant="outline" className="w-full sm:w-auto">
+          <Link href="/admin">
+            <ArrowLeft className="size-4" />
+            Volver al panel
+          </Link>
+        </Button>
       </div>
 
       <Card className="mt-8">
@@ -55,7 +65,7 @@ export default async function AdminPedidosPage({
               </label>
               <select
                 id="status"
-                name="status"
+                name="estado"
                 defaultValue={activeStatus ?? ""}
                 className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               >
