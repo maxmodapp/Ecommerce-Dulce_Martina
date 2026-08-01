@@ -3,9 +3,45 @@ __v0_runtime_loader.js
 __v0_devtools.tsx
 __v0_jsx-dev-runtime.ts
 
-# Common ignores
+# Dependencies
 node_modules/
+
+# Next.js
 .next/
+out/
+
+# Production/build outputs
+dist/
+build/
+
+# Environment variables
+.env
+.env.*
+!.env.example
 .env*.local
+
+# Local tool caches
+*.tsbuildinfo
+.vercel/
+.turbo/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS/editor
 .DS_Store
+Thumbs.db
+
+# Generated Prisma client
 /lib/generated/prisma
+
+# Local databases/dumps
+*.sqlite
+*.sqlite3
+*.db
+*.dump
