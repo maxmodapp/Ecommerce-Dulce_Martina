@@ -54,7 +54,7 @@ export default async function HomePage() {
             {"¿Necesitas ayuda?"}
           </h2>
           <p className="mx-auto mt-3 max-w-md text-muted-foreground">
-            Escribinoss por WhatsApp y te asesoramos con tu compra.
+            Escribinos por WhatsApp y te asesoramos con tu compra.
             Estamos para vos.
           </p>
           <Button
