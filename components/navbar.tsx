@@ -17,6 +17,9 @@ type NavbarProps = {
   catalogMenu: CatalogMenuCategory[]
 }
 
+const NAVBAR_COLLAPSE_SCROLL_Y = 220
+const NAVBAR_EXPAND_SCROLL_Y = 160
+
 export function Navbar({ catalogMenu }: NavbarProps) {
   const pathname = usePathname()
   const { totalItems } = useCart()
@@ -32,8 +35,14 @@ export function Navbar({ catalogMenu }: NavbarProps) {
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 200)
+      const scrollY = window.scrollY
+
+      setIsScrolled((current) => {
+        if (current) return scrollY > NAVBAR_EXPAND_SCROLL_Y
+        return scrollY > NAVBAR_COLLAPSE_SCROLL_Y
+      })
     }
+
     handleScroll()
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
