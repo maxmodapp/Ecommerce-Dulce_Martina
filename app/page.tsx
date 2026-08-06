@@ -28,7 +28,7 @@ export default async function HomePage() {
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
             <HomeProductCarousel
               title="Destacados"
-              description="Una seleccion especial de productos elegidos para mostrar en portada."
+              description="Productos que mas destacan en la tienda"
               products={featured}
             />
           </div>
@@ -40,7 +40,7 @@ export default async function HomePage() {
           <div className="mx-auto max-w-7xl px-4 lg:px-8">
             <HomeProductCarousel
               title="Ultimos ingresos"
-              description="Nuevos productos elegidos manualmente para renovar la home."
+              description="Ultimos ingresos al local"
               products={newArrivals}
             />
           </div>
