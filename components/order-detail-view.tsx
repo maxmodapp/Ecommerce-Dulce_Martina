@@ -47,7 +47,7 @@ export function OrderDetailView({
   const showTransferAccount = showTransferState && order.status !== "PENDING"
   const transferAccountIntro =
     order.status === "CONFIRMED"
-      ? "Realiza la transferencia a la siguiente cuenta con el monto exacto del total y envia el comprobante por WhatsApp (2345410952)."
+      ? "Realiza la transferencia a la siguiente cuenta con el monto exacto del total y envia el comprobante por WhatsApp (2345000000)."
       : "Datos de la cuenta de transferencia de este pedido."
   const transferAccountFooter =
     order.status === "CONFIRMED"

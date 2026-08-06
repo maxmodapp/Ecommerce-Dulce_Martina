@@ -20,11 +20,11 @@ export default async function LoginPage() {
             Tu cuenta
           </p>
           <h1 className="mt-3 font-serif text-4xl font-bold text-foreground">
-            Inicia sesion para guardar tus datos y comprar mas rapido
+            Iniciar sesion
           </h1>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            Podes seguir comprando como invitada, pero con tu cuenta vas a tener tu informacion
-            lista para futuras compras y mas adelante tambien tus pedidos en un solo lugar.
+            Podes seguir comprando como invitado, pero con tu cuenta vas a tener tu informacion
+            lista para futuras compras y tambien ver tus pedidos en un solo lugar.
           </p>
         </div>
 

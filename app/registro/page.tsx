@@ -23,8 +23,8 @@ export default async function RegistroPage() {
             Registrate para tener tu cuenta lista en la tienda
           </h1>
           <p className="mt-4 text-base leading-relaxed text-muted-foreground">
-            Vas a poder guardar tus datos personales y dejar preparada la base para ver tus
-            pedidos desde la web, sin afectar la compra invitada que ya funciona hoy.
+            Podes seguir comprando como invitado, pero con tu cuenta vas a tener tu informacion
+            lista para futuras compras y tambien ver tus pedidos en un solo lugar.
           </p>
         </div>
 

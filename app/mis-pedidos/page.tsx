@@ -25,11 +25,8 @@ export default async function MisPedidosPage() {
       <div className="max-w-2xl">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">Mis pedidos</p>
         <h1 className="mt-3 font-serif text-4xl font-bold text-foreground">
-          Tus compras, ordenadas en un solo lugar
+          Tus compras
         </h1>
-        <p className="mt-4 text-muted-foreground">
-          Desde aca podes ver los pedidos asociados a tu cuenta y entrar al detalle de cada uno.
-        </p>
       </div>
 
       {orders.length === 0 ? (

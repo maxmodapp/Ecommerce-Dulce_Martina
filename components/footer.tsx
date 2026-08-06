@@ -35,8 +35,7 @@ export function Footer({ catalogMenu }: FooterProps) {
               </span>
             </Link>
             <p className="text-sm leading-relaxed text-muted-foreground">
-              Elegancia, comodidad y estilo. Ropa femenina y lenceria
-              seleccionada con amor para vos.
+              Elegancia, comodidad y estilo. Ropa y lenceria seleccionada para vos.
             </p>
           </div>
 

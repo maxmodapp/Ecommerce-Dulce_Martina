@@ -49,7 +49,7 @@ export function LoginForm() {
     }
 
     setUser(data.user)
-    router.replace(searchParams.get("next") || "/mi-cuenta")
+    router.replace(searchParams.get("next") || "/")
     router.refresh()
   }
 

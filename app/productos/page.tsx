@@ -4,7 +4,7 @@ import { apiListToUI } from "@/lib/adapters/product"
 
 export const metadata = {
   title: "Productos | Dulce Martina",
-  description: "Explora nuestra coleccion completa de remeras, pantalones y ropa interior.",
+  description: "Explora nuestra coleccion completa.",
 }
 
 export default async function ProductosPage({
@@ -36,7 +36,7 @@ export default async function ProductosPage({
           Todos los Productos
         </h1>
         <p className="mt-2 text-muted-foreground">
-          Explora nuestra coleccion completa de moda femenina y lenceria.
+          Explora nuestra coleccion completa
         </p>
       </div>
 

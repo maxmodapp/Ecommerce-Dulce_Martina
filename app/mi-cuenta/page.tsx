@@ -29,11 +29,8 @@ export default async function MiCuentaPage() {
       <div className="max-w-2xl">
         <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary">Mi cuenta</p>
         <h1 className="mt-3 font-serif text-4xl font-bold text-foreground">
-          Tus datos, en un solo lugar
+          Tus datos
         </h1>
-        <p className="mt-4 text-muted-foreground">
-          Desde aca podes mantener actualizada tu informacion para futuras compras.
-        </p>
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
@@ -53,7 +50,6 @@ export default async function MiCuentaPage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-xl">Cuenta activa</CardTitle>
-              <CardDescription>Estos son los datos principales de tu sesion actual.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div>
@@ -76,9 +72,7 @@ export default async function MiCuentaPage() {
           <Card id="mis-pedidos">
             <CardHeader>
               <CardTitle className="text-xl">Mis pedidos</CardTitle>
-              <CardDescription>
-                Un resumen rapido de las compras asociadas a tu cuenta.
-              </CardDescription>
+              <CardDescription>resumen</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
               {orderSummary.totalCount > 0 && orderSummary.latestOrder ? (

@@ -30,7 +30,7 @@ export function HomeCategoriesSection({ catalogMenu }: HomeCategoriesSectionProp
           Categorias
         </h2>
         <p className="mt-2 text-muted-foreground">
-          Explora nuestras colecciones pensadas para vos
+          Explora nuestras colecciones
         </p>
       </div>
 

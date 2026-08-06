@@ -59,9 +59,6 @@ export default async function SubcategoryProductsPage({
         <h1 className="mt-2 font-serif text-3xl font-bold text-foreground md:text-4xl">
           {subcategory.name}
         </h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">
-          Explora los productos de esta subcategoria.
-        </p>
       </div>
       <ProductsGrid products={products} fixedCategory={subcategory.category.slug} />
     </div>

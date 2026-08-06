@@ -145,7 +145,7 @@ export function CheckoutForm() {
       const message = `Hola! Quiero realizar un pedido (Orden #${orden.id}):\n\n${itemsList}\n\nSubtotal: ${formatPrice(subtotal)}\nEntrega: ${deliveryText}\nTotal: ${formatPrice(total)}\n\nDatos:\nNombre: ${form.name}\nEmail: ${form.email}\nTel: ${form.phone}\nDireccion: ${addressText}\nPago: ${form.paymentMethod}`
 
       window.open(
-        `https://wa.me/2345410952?text=${encodeURIComponent(message)}`,
+        `https://wa.me/2345000000?text=${encodeURIComponent(message)}`,
         "_blank"
       )
 

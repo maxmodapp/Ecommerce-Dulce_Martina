@@ -61,9 +61,6 @@ export default async function CategoryProductsPage({
         <h1 className="font-serif text-3xl font-bold text-foreground md:text-4xl">
           {category.name}
         </h1>
-        <p className="mt-2 max-w-2xl text-muted-foreground">
-          Explora los productos de esta categoria.
-        </p>
       </div>
       <ProductsGrid products={products} fixedCategory={category.slug} />
     </div>
