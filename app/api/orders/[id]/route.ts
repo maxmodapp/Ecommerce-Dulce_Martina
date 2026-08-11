@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server"
-import { getCurrentUserId } from "@/lib/auth"
+import { getCurrentUser } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
 export const runtime = "nodejs"
-const ZERO = BigInt(0)
 
 class ApiError extends Error {
   status: number
@@ -19,25 +18,12 @@ function jsonError(err: ApiError) {
   return NextResponse.json({ error: err.message, code: err.code }, { status: err.status })
 }
 
-function toBigIntId(value: unknown, fieldName: string): bigint {
-  if (typeof value === "bigint") {
-    if (value <= ZERO) throw new ApiError(400, `${fieldName} inválido`, "INVALID_ID")
-    return value
+function toOrderNumber(value: string): number {
+  const normalized = value.trim()
+  if (!/^\d{6}$/.test(normalized)) {
+    throw new ApiError(400, "Numero de pedido invalido", "INVALID_ORDER_NUMBER")
   }
-  if (typeof value === "number") {
-    if (!Number.isFinite(value) || !Number.isInteger(value) || value <= 0) {
-      throw new ApiError(400, `${fieldName} inválido`, "INVALID_ID")
-    }
-    return BigInt(value)
-  }
-  if (typeof value === "string") {
-    const s = value.trim()
-    if (!/^[0-9]+$/.test(s)) throw new ApiError(400, `${fieldName} inválido`, "INVALID_ID")
-    const id = BigInt(s)
-    if (id <= ZERO) throw new ApiError(400, `${fieldName} inválido`, "INVALID_ID")
-    return id
-  }
-  throw new ApiError(400, `${fieldName} inválido`, "INVALID_ID")
+  return Number(normalized)
 }
 
 export async function GET(
@@ -45,12 +31,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: idParam } = await params
-    const id = toBigIntId(idParam, "id")
-    const currentUserId = await getCurrentUserId()
+    const { id: orderNumberParam } = await params
+    const orderNumber = toOrderNumber(orderNumberParam)
+    const currentUser = await getCurrentUser()
 
     const order = await prisma.ordenes.findUnique({
-      where: { id },
+      where: { numero_orden: orderNumber },
       include: {
         orden_productos: {
           include: {
@@ -76,14 +62,20 @@ export async function GET(
       return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 })
     }
 
-    // Los pedidos asociados a una cuenta solo pueden ser vistos por esa misma cuenta.
-    if (order.user_id && order.user_id !== currentUserId) {
+    const isAdmin = currentUser?.role === "ADMIN"
+    const belongsToCurrentUser = Boolean(
+      currentUser && order.user_id && order.user_id.toString() === currentUser.id
+    )
+
+    // Guest orders are public by order number. Account orders are restricted
+    // to their owner, while administrators can inspect every order.
+    if (order.user_id && !belongsToCurrentUser && !isAdmin) {
       return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 })
     }
 
     // prepare safe output matching adapter expectations
     const safeOrder = {
-      id: order.id.toString(),
+      id: order.numero_orden.toString(),
       status: order.status,
       created_at: order.created_at,
       payment_method: order.payment_method,

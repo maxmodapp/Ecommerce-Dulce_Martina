@@ -8,6 +8,7 @@ import type { AdminOrderListItem, OrderDetail, OrderStatus } from "@/lib/types"
 
 type OrderListRow = {
   id: bigint
+  numero_orden: number
   created_at: Date
   status: string
   total: number
@@ -20,6 +21,7 @@ type OrderListRow = {
 
 type AdminOrderRecord = {
   id: bigint
+  numero_orden: number
   status: string
   created_at: Date
   payment_method: string
@@ -135,6 +137,7 @@ function buildStockLines(
 function toAdminOrderListItem(order: OrderListRow): AdminOrderListItem {
   return {
     id: order.id.toString(),
+    orderNumber: order.numero_orden.toString(),
     createdAt: order.created_at.toISOString(),
     status: asOrderStatus(order.status),
     total: order.total,
@@ -149,7 +152,7 @@ function toAdminOrderListItem(order: OrderListRow): AdminOrderListItem {
 function toCustomerOrderPayload(order: AdminOrderRecord) {
   return {
     order: {
-      id: order.id.toString(),
+      id: order.numero_orden.toString(),
       status: order.status,
       created_at: order.created_at,
       payment_method: order.payment_method,
@@ -180,6 +183,7 @@ export async function getAdminOrders(options?: {
     orderBy,
     select: {
       id: true,
+      numero_orden: true,
       created_at: true,
       status: true,
       total: true,

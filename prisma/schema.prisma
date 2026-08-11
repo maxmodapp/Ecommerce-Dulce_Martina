@@ -60,6 +60,7 @@ model orden_productos {
 
 model ordenes {
   id               BigInt            @id @default(autoincrement())
+  numero_orden     Int               @unique @default(dbgenerated("generate_order_number()"))
   user_id          BigInt?
   customer_name    String
   customer_phone   String

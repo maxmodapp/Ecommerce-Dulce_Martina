@@ -55,7 +55,9 @@ export function AdminOrdersList({
             <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Pedido</p>
-                <h2 className="font-serif text-2xl font-bold text-foreground">#{order.id}</h2>
+                <h2 className="order-number font-serif text-2xl font-bold text-foreground">
+                  #{order.orderNumber}
+                </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {new Date(order.createdAt).toLocaleDateString("es-AR", {
                     day: "numeric",

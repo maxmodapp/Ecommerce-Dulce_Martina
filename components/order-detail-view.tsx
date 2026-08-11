@@ -71,7 +71,8 @@ export function OrderDetailView({
                 Tu pedido fue registrado correctamente y enviado.
               </p>
               <p className="mt-3 text-sm text-muted-foreground">
-                Guarda el codigo <span className="font-medium text-foreground">#{order.id}</span>{" "}
+                Guarda el codigo{" "}
+                <span className="order-number font-medium text-foreground">#{order.id}</span>{" "}
                 para consultarlo cuando quieras.
               </p>
             </div>
@@ -86,7 +87,7 @@ export function OrderDetailView({
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-sm text-muted-foreground">Pedido</p>
-              <CardTitle className="mt-1 font-serif text-3xl text-foreground">
+              <CardTitle className="order-number mt-1 font-serif text-3xl text-foreground">
                 #{order.id}
               </CardTitle>
               <p className="mt-2 text-sm text-muted-foreground">

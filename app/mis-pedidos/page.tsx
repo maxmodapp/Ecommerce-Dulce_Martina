@@ -53,7 +53,9 @@ export default async function MisPedidosPage() {
                   <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground">Pedido</p>
-                      <h2 className="font-serif text-2xl font-bold text-foreground">#{order.id}</h2>
+                      <h2 className="order-number font-serif text-2xl font-bold text-foreground">
+                        #{order.id}
+                      </h2>
                     </div>
                     <Badge variant="secondary" className="w-fit px-3 py-1 text-xs">
                       {getOrderStatusLabel(order.status as any, order.deliveryMethod)}

@@ -260,7 +260,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         orden: {
-          id: order.id.toString(),
+          id: order.numero_orden.toString(),
           status: order.status,
           payment_method: order.payment_method,
           delivery_method: order.delivery_method,
@@ -318,7 +318,7 @@ export async function GET(req: Request) {
       },
       orderBy: { created_at: "desc" },
       select: {
-        id: true,
+        numero_orden: true,
         created_at: true,
         status: true,
         total: true,
@@ -331,7 +331,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       orders: orders.map((o) => ({
-        id: o.id.toString(),
+        id: o.numero_orden.toString(),
         created_at: o.created_at,
         status: o.status,
         total: o.total,

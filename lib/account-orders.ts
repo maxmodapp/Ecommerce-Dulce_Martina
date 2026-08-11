@@ -12,6 +12,7 @@ export type AccountOrderPreview = {
 
 type OrderRow = {
   id: bigint
+  numero_orden: number
   created_at: Date
   status: string
   total: number
@@ -24,7 +25,7 @@ function toUserId(userId: string | bigint) {
 
 function mapOrderPreview(order: OrderRow): AccountOrderPreview {
   return {
-    id: order.id.toString(),
+    id: order.numero_orden.toString(),
     createdAt: order.created_at.toISOString(),
     status: order.status,
     total: order.total,
@@ -39,6 +40,7 @@ export async function getOrdersForUser(userId: string | bigint, take?: number) {
     take,
     select: {
       id: true,
+      numero_orden: true,
       created_at: true,
       status: true,
       total: true,
@@ -61,6 +63,7 @@ export async function getOrderSummaryForUser(userId: string | bigint) {
       orderBy: { created_at: "desc" },
       select: {
         id: true,
+        numero_orden: true,
         created_at: true,
         status: true,
         total: true,

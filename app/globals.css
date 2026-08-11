@@ -96,3 +96,13 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .order-number {
+    display: inline-block;
+    font-variant-numeric: lining-nums tabular-nums;
+    font-feature-settings: "lnum" 1, "tnum" 1;
+    line-height: 1;
+    letter-spacing: 0.025em;
+  }
+}

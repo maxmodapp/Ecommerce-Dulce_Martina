@@ -2,7 +2,7 @@ import { ConsultarPedidoForm } from "./form"
 
 export const metadata = {
   title: "Consultar pedido | Dulce Martina",
-  description: "Busca el estado de tu pedido ingresando tu código",
+  description: "Busca el estado de tu pedido ingresando tu número de orden",
 }
 
 export default function ConsultarPedidoPage() {
@@ -12,10 +12,9 @@ export default function ConsultarPedidoPage() {
         Consultar pedido
       </h1>
       <p className="mt-2 text-center text-muted-foreground">
-        Ingresá tu código de pedido para conocer el estado de tu compra.
+        Ingresá tu número de pedido para conocer el estado de tu compra.
       </p>
       <ConsultarPedidoForm />
     </div>
   )
 }
-

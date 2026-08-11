@@ -90,7 +90,9 @@ export default async function MiCuentaPage() {
                     <p className="text-xs uppercase tracking-wide text-muted-foreground">
                       Ultimo pedido
                     </p>
-                    <p className="font-medium text-foreground">#{orderSummary.latestOrder.id}</p>
+                    <p className="order-number font-medium text-foreground">
+                      #{orderSummary.latestOrder.id}
+                    </p>
                     <p className="text-muted-foreground">
                       {getOrderStatusLabel(
                         orderSummary.latestOrder.status as any,

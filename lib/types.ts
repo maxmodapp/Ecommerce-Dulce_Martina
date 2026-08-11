@@ -260,6 +260,7 @@ export interface CoverImageItem {
 
 export interface AdminOrderListItem {
   id: string
+  orderNumber: string
   createdAt: string
   status: OrderStatus
   total: number
