@@ -63,6 +63,7 @@ type StockLine = {
 }
 
 export interface AdminOrderDetail {
+  internalOrderId: string
   order: OrderDetail
   customer: {
     name: string
@@ -230,6 +231,7 @@ export async function getAdminOrderById(id: string | bigint): Promise<AdminOrder
   if (!order) return null
 
   return {
+    internalOrderId: order.id.toString(),
     order: apiOrderToUI(toCustomerOrderPayload(order as AdminOrderRecord)),
     customer: {
       name: order.customer_name,
@@ -253,9 +255,12 @@ export async function updateAdminOrderStatus(id: string | bigint, status: OrderS
       where: { id: orderId },
       select: {
         id: true,
+        numero_orden: true,
         status: true,
         payment_method: true,
         delivery_method: true,
+        customer_name: true,
+        customer_email: true,
         orden_productos: {
           select: {
             cantidad: true,
@@ -295,7 +300,17 @@ export async function updateAdminOrderStatus(id: string | bigint, status: OrderS
 
     const currentStatus = asOrderStatus(currentOrder.status)
     if (currentStatus === status) {
-      return currentOrder
+      return {
+        id: currentOrder.id,
+        numero_orden: currentOrder.numero_orden,
+        status: currentOrder.status,
+        payment_method: currentOrder.payment_method,
+        delivery_method: currentOrder.delivery_method,
+        customer_name: currentOrder.customer_name,
+        customer_email: currentOrder.customer_email,
+        previousStatus: currentStatus,
+        changed: false,
+      }
     }
 
     const stockLines = buildStockLines(currentOrder.orden_productos)
@@ -359,20 +374,36 @@ export async function updateAdminOrderStatus(id: string | bigint, status: OrderS
       }
     }
 
-    return tx.ordenes.update({
+    const updatedOrder = await tx.ordenes.update({
       where: { id: orderId },
       data: { status },
       select: {
         id: true,
+        numero_orden: true,
         status: true,
+        payment_method: true,
         delivery_method: true,
+        customer_name: true,
+        customer_email: true,
       },
     })
+
+    return {
+      ...updatedOrder,
+      previousStatus: currentStatus,
+      changed: true,
+    }
   })
 
   return {
     id: order.id.toString(),
+    orderNumber: order.numero_orden.toString(),
     status: asOrderStatus(order.status),
+    paymentMethod: order.payment_method,
     deliveryMethod: order.delivery_method,
+    customerName: order.customer_name,
+    customerEmail: order.customer_email,
+    previousStatus: order.previousStatus,
+    changed: order.changed,
   }
 }

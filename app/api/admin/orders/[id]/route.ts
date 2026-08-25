@@ -1,6 +1,8 @@
+import { randomUUID } from "node:crypto"
 import { NextResponse } from "next/server"
 import { AdminApiError, adminJsonError, requireAdminApiUser } from "@/lib/admin"
 import { getAdminOrderById, updateAdminOrderStatus } from "@/lib/admin-orders"
+import { sendOrderStatusEmail } from "@/lib/email/order-email"
 import { ORDER_STATUS_VALUES } from "@/lib/order-display"
 import type { OrderStatus } from "@/lib/types"
 
@@ -81,7 +83,30 @@ export async function PATCH(
     const status = parseOrderStatus((body as any)?.status)
     const order = await updateAdminOrderStatus(resolvedId, status)
 
-    return NextResponse.json({ order })
+    const emailResult = order.changed
+      ? await sendOrderStatusEmail({
+          customerName: order.customerName,
+          customerEmail: order.customerEmail,
+          internalOrderId: order.id,
+          orderNumber: order.orderNumber,
+          status: order.status,
+          deliveryMethod: order.deliveryMethod,
+          paymentMethod: order.paymentMethod,
+          eventKey: `order-status/${order.id}/${order.previousStatus}/${order.status}/${randomUUID()}`,
+        })
+      : null
+
+    return NextResponse.json({
+      order: {
+        id: order.id,
+        status: order.status,
+        deliveryMethod: order.deliveryMethod,
+      },
+      notification: {
+        emailAttempted: order.changed,
+        emailSent: emailResult?.sent ?? false,
+      },
+    })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)
     if (error?.message === "ORDER_NOT_FOUND") {

@@ -22,8 +22,8 @@ export default async function AdminPedidoDetailPage({
   params: Promise<{ id: string }>
   searchParams?: Promise<{ returnTo?: string }>
 }) {
-  await requireAdminPageUser("/admin/pedidos")
   const { id } = await params
+  await requireAdminPageUser(`/admin/pedidos/${encodeURIComponent(id)}`)
   const resolvedSearchParams = searchParams ? await searchParams : undefined
   const returnHref = getSafeInternalPath(resolvedSearchParams?.returnTo, "/admin/pedidos")
   const detail = await getAdminOrderById(id)
@@ -84,7 +84,7 @@ export default async function AdminPedidoDetailPage({
           <p className="text-xs uppercase tracking-wide text-muted-foreground">Estado</p>
           <div className="mt-2">
             <AdminOrderStatusSelect
-              orderId={detail.order.id}
+              orderId={detail.internalOrderId}
               deliveryMethod={detail.order.deliveryMethod}
               paymentMethod={detail.order.paymentMethod}
               status={detail.order.status}

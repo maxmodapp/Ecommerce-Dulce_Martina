@@ -5,6 +5,7 @@ import Image from "next/image"
 import { Instagram, Mail, MessageCircle, X } from "lucide-react"
 import { useState } from "react"
 import { CatalogMenuContent } from "@/components/catalog-menu-content"
+import { BUSINESS_CONTACT } from "@/lib/business-config"
 import type { CatalogMenuCategory, MenuAudienceFilter } from "@/lib/types"
 
 type FooterProps = {
@@ -126,7 +127,7 @@ export function Footer({ catalogMenu }: FooterProps) {
             </h3>
             <div className="flex gap-3">
               <a
-                href="https://instagram.com"
+                href={BUSINESS_CONTACT.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex size-10 items-center justify-center rounded-full bg-secondary text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
@@ -135,7 +136,7 @@ export function Footer({ catalogMenu }: FooterProps) {
                 <Instagram className="size-5" />
               </a>
               <a
-                href="https://wa.me/5491100000000"
+                href={BUSINESS_CONTACT.whatsappUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex size-10 items-center justify-center rounded-full bg-secondary text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
@@ -144,7 +145,7 @@ export function Footer({ catalogMenu }: FooterProps) {
                 <MessageCircle className="size-5" />
               </a>
               <a
-                href="mailto:hola@dulcemartina.com"
+                href={`mailto:${BUSINESS_CONTACT.email}`}
                 className="flex size-10 items-center justify-center rounded-full bg-secondary text-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
                 aria-label="Email"
               >
