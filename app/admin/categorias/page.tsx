@@ -38,7 +38,7 @@ export default async function AdminCategoriasPage() {
             Gestion de categorias
           </h1>
           <p className="mt-4 text-muted-foreground">
-            Organiza el catalogo y el menu visual de productos desde un lugar simple.
+            Organiza el catalogo y el menu visual de productos.
           </p>
         </div>
 

@@ -46,8 +46,8 @@ export default async function AdminInicioPage() {
             Secciones de la home
           </h1>
           <p className="mt-4 text-muted-foreground">
-            Desde aqui ordenas y quitas productos ya asignados a cada seccion. La inclusion de un
-            producto se define unicamente desde su ficha admin.
+            Administra la portada y el orden de las secciones principales que se muestran en el
+            inicio.
           </p>
         </div>
 

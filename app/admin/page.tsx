@@ -48,7 +48,8 @@ export default async function AdminPage() {
           Panel de administracion
         </h1>
         <p className="mt-4 text-muted-foreground">
-          Accede a los modulos principales del panel desde un lugar simple y claro.
+          Gestiona la tienda desde un solo lugar: productos, pedidos, categorias y contenido de
+          inicio.
         </p>
       </div>
 
