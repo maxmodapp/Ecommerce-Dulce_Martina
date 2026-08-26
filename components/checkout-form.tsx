@@ -8,9 +8,11 @@ import { ArrowLeft, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/lib/auth-context"
+import { BUSINESS_CONTACT } from "@/lib/business-config"
 import { useCart } from "@/lib/cart-context"
 import { DELIVERY_LABEL, PICKUP_ADDRESS, PICKUP_LABEL } from "@/lib/cart-config"
 import { formatPrice } from "@/lib/data"
+import { getOrderWhatsAppStorageKey } from "@/lib/order-whatsapp"
 
 export function CheckoutForm() {
   const {
@@ -144,13 +146,24 @@ export function CheckoutForm() {
 
       const message = `Hola! Quiero realizar un pedido (Orden #${orden.id}):\n\n${itemsList}\n\nSubtotal: ${formatPrice(subtotal)}\nEntrega: ${deliveryText}\nTotal: ${formatPrice(total)}\n\nDatos:\nNombre: ${form.name}\nEmail: ${form.email}\nTel: ${form.phone}\nDireccion: ${addressText}\nPago: ${form.paymentMethod}`
 
-      window.open(
-        `https://wa.me/2345000000?text=${encodeURIComponent(message)}`,
-        "_blank"
-      )
+      const whatsappUrl = `${BUSINESS_CONTACT.whatsappUrl}?text=${encodeURIComponent(message)}`
+      const whatsappWindow = window.open(whatsappUrl, "_blank")
+      const whatsappWasBlocked = !whatsappWindow
+
+      if (whatsappWindow) {
+        whatsappWindow.opener = null
+      } else {
+        try {
+          window.sessionStorage.setItem(getOrderWhatsAppStorageKey(orden.id), whatsappUrl)
+        } catch {
+          // El boton de respaldo igualmente abrira el chat de WhatsApp.
+        }
+      }
 
       clearCart()
-      router.push(`/pedido/${orden.id}?success=1`)
+      router.push(
+        `/pedido/${orden.id}?success=1${whatsappWasBlocked ? "&whatsapp=blocked" : ""}`
+      )
     } catch (err: any) {
       setError(err.message || "Error desconocido")
       setLoading(false)

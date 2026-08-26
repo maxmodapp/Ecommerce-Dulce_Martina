@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Heart, Truck, Shield, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { BUSINESS_CONTACT } from "@/lib/business-config"
 
 export const metadata = {
   title: "Nosotros | Dulce Martina",
@@ -147,7 +148,7 @@ export default function NosotrosPage() {
               className="border-border text-foreground hover:bg-secondary"
             >
               <a
-                href="https://wa.me/5491100000000?text=Hola!%20Quiero%20saber%20mas%20sobre%20Dulce%20Martina"
+                href={`${BUSINESS_CONTACT.whatsappUrl}?text=Hola!%20Quiero%20saber%20mas%20sobre%20Dulce%20Martina`}
                 target="_blank"
                 rel="noopener noreferrer"
               >

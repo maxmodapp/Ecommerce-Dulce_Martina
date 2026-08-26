@@ -2,15 +2,25 @@ import { redirect } from "next/navigation"
 import { LoginForm } from "@/components/login-form"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getCurrentUser } from "@/lib/auth"
+import { getSafeInternalPath } from "@/lib/utils"
 
 export const metadata = {
   title: "Iniciar sesion | Dulce Martina",
   description: "Ingresa a tu cuenta para guardar tus datos y seguir tus pedidos.",
 }
 
-export default async function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ next?: string | string[] }>
+}) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined
+  const nextValue = Array.isArray(resolvedSearchParams?.next)
+    ? resolvedSearchParams.next[0]
+    : resolvedSearchParams?.next
+  const nextPath = getSafeInternalPath(nextValue, "/mi-cuenta")
   const user = await getCurrentUser()
-  if (user) redirect("/mi-cuenta")
+  if (user) redirect(nextPath)
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-9rem)] w-full max-w-7xl items-center px-4 py-12 lg:px-8">

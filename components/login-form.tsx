@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form"
 import { useRouter, useSearchParams } from "next/navigation"
 import { loginSchema, type LoginInput } from "@/lib/auth-schemas"
 import { useAuth } from "@/lib/auth-context"
+import { getSafeInternalPath } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -49,7 +50,7 @@ export function LoginForm() {
     }
 
     setUser(data.user)
-    router.replace(searchParams.get("next") || "/")
+    router.replace(getSafeInternalPath(searchParams.get("next"), "/"))
     router.refresh()
   }
 

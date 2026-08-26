@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server"
+import { after, NextResponse } from "next/server"
 import { getCurrentUserId } from "@/lib/auth"
+import { sendAdminNewOrderEmail, sendOrderStatusEmail } from "@/lib/email/order-email"
 import { prisma } from "@/lib/prisma"
 
 export const runtime = "nodejs"
@@ -255,6 +256,36 @@ export async function POST(req: Request) {
       })
 
       return created
+    })
+
+    after(async () => {
+      const internalOrderId = order.id.toString()
+      const orderNumber = order.numero_orden.toString()
+
+      await Promise.all([
+        sendOrderStatusEmail({
+          customerName: order.customer_name,
+          customerEmail: order.customer_email,
+          internalOrderId,
+          orderNumber,
+          status: "PENDING",
+          deliveryMethod: order.delivery_method,
+          paymentMethod: order.payment_method,
+          eventKey: `order-created/${internalOrderId}`,
+        }),
+        sendAdminNewOrderEmail({
+          customerName: order.customer_name,
+          customerEmail: order.customer_email,
+          customerPhone: order.customer_phone,
+          internalOrderId,
+          orderNumber,
+          deliveryMethod: order.delivery_method,
+          paymentMethod: order.payment_method,
+          shippingAddress: order.shipping_address,
+          total: order.total,
+          eventKey: `admin-order-created/${internalOrderId}`,
+        }),
+      ])
     })
 
     return NextResponse.json(

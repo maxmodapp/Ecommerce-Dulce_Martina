@@ -4,6 +4,7 @@ import Image from "next/image"
 import { OrderTimeline } from "@/components/order-timeline"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { BUSINESS_CONTACT } from "@/lib/business-config"
 import { formatPrice } from "@/lib/data"
 import {
   getDeliveryMethodLabel,
@@ -23,6 +24,7 @@ const TRANSFER_ACCOUNT = {
 interface OrderDetailViewProps {
   order: OrderDetail
   showSuccessBanner?: boolean
+  successAction?: ReactNode
   topContent?: ReactNode
   footerContent?: ReactNode
 }
@@ -30,6 +32,7 @@ interface OrderDetailViewProps {
 export function OrderDetailView({
   order,
   showSuccessBanner = false,
+  successAction,
   topContent,
   footerContent,
 }: OrderDetailViewProps) {
@@ -47,7 +50,7 @@ export function OrderDetailView({
   const showTransferAccount = showTransferState && order.status !== "PENDING"
   const transferAccountIntro =
     order.status === "CONFIRMED"
-      ? "Realiza la transferencia a la siguiente cuenta con el monto exacto del total y envia el comprobante por WhatsApp (2345000000)."
+      ? `Realiza la transferencia a la siguiente cuenta con el monto exacto del total y envia el comprobante por WhatsApp (${BUSINESS_CONTACT.whatsappDisplay}).`
       : "Datos de la cuenta de transferencia de este pedido."
   const transferAccountFooter =
     order.status === "CONFIRMED"
@@ -75,6 +78,7 @@ export function OrderDetailView({
                 <span className="order-number font-medium text-foreground">#{order.id}</span>{" "}
                 para consultarlo cuando quieras.
               </p>
+              {successAction}
             </div>
           </CardContent>
         </Card>

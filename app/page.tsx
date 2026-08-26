@@ -2,6 +2,7 @@ import { HomeCoverCarousel } from "@/components/home-cover-carousel"
 import { HomeCategoriesSection } from "@/components/home-categories-section"
 import { HomeProductCarousel } from "@/components/home-product-carousel"
 import { Button } from "@/components/ui/button"
+import { BUSINESS_CONTACT } from "@/lib/business-config"
 import { getCatalogMenu } from "@/lib/catalog"
 import { getPublicCoverImages } from "@/lib/cover-images"
 import { getHomepageSectionsData } from "@/lib/home-sections"
@@ -63,7 +64,7 @@ export default async function HomePage() {
             className="mt-6 bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <a
-              href="https://wa.me/5491100000000?text=Hola!%20Quiero%20consultar%20sobre%20productos"
+              href={`${BUSINESS_CONTACT.whatsappUrl}?text=Hola!%20Quiero%20consultar%20sobre%20productos`}
               target="_blank"
               rel="noopener noreferrer"
             >

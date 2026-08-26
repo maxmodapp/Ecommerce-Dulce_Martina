@@ -69,6 +69,16 @@ export async function GET(
 
     // Guest orders are public by order number. Account orders are restricted
     // to their owner, while administrators can inspect every order.
+    if (order.user_id && !currentUser) {
+      return NextResponse.json(
+        {
+          error: "Inicia sesion para ver este pedido",
+          code: "AUTH_REQUIRED",
+        },
+        { status: 401 }
+      )
+    }
+
     if (order.user_id && !belongsToCurrentUser && !isAdmin) {
       return NextResponse.json({ error: "Pedido no encontrado" }, { status: 404 })
     }

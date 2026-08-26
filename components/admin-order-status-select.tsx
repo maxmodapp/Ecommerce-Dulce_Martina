@@ -37,11 +37,13 @@ export function AdminOrderStatusSelect({
   const [currentStatus, setCurrentStatus] = useState<OrderStatus>(status)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState("")
+  const [emailWarning, setEmailWarning] = useState("")
   const [pendingCancellation, setPendingCancellation] = useState(false)
   const [stockIssues, setStockIssues] = useState<StockIssue[]>([])
 
   async function saveStatus(resolvedStatus: OrderStatus) {
     setError("")
+    setEmailWarning("")
     setStockIssues([])
     setIsSaving(true)
 
@@ -64,6 +66,12 @@ export function AdminOrderStatusSelect({
       setPendingCancellation(false)
       onUpdated?.(data.order.status)
 
+      if (data?.notification?.emailAttempted && !data?.notification?.emailSent) {
+        setEmailWarning(
+          "El estado se actualizo, pero no pudimos enviar el correo al cliente."
+        )
+      }
+
       if (refreshOnSuccess) {
         router.refresh()
       }
@@ -78,6 +86,7 @@ export function AdminOrderStatusSelect({
     const resolvedStatus = nextStatus as OrderStatus
 
     setError("")
+    setEmailWarning("")
     setStockIssues([])
 
     if (resolvedStatus === currentStatus) {
@@ -110,6 +119,11 @@ export function AdminOrderStatusSelect({
       </Select>
 
       {error ? <p className="text-xs text-destructive">{error}</p> : null}
+      {emailWarning ? (
+        <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900">
+          {emailWarning}
+        </p>
+      ) : null}
       {pendingCancellation ? (
         <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-xs text-muted-foreground">
           <p className="font-medium text-foreground">Confirmar cancelacion del pedido</p>
