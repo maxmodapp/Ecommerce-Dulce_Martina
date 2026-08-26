@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from "next"
 import { Inter, Playfair_Display } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
-import { getCurrentUser } from "@/lib/auth"
 import { getCatalogMenu } from "@/lib/catalog"
 import { AuthProvider } from "@/lib/auth-context"
 import { CartProvider } from "@/lib/cart-context"
@@ -32,13 +30,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const initialUser = await getCurrentUser()
   const catalogMenu = await getCatalogMenu()
 
   return (
     <html lang="es">
       <body className="font-sans antialiased" suppressHydrationWarning>
-        <AuthProvider initialUser={initialUser}>
+        <AuthProvider>
           <CartProvider>
             <CartDrawerProvider>
               <Navbar catalogMenu={catalogMenu} />
@@ -48,7 +45,6 @@ export default async function RootLayout({
             </CartDrawerProvider>
           </CartProvider>
         </AuthProvider>
-        <Analytics />
       </body>
     </html>
   )

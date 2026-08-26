@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import { ProductsGrid } from "@/components/products-grid"
 import { apiListToUI } from "@/lib/adapters/product"
 import { getSubcategoryBySlugs } from "@/lib/catalog"
-import { getOrigin } from "@/lib/server/origin"
+import { getPublicProductList } from "@/lib/public-products"
 
 export async function generateMetadata({
   params,
@@ -34,21 +34,14 @@ export default async function SubcategoryProductsPage({
     notFound()
   }
 
-  const origin = await getOrigin()
   const query = await searchParams
-  const apiParams = new URLSearchParams({
+  const data = await getPublicProductList({
     categoria: subcategory.category.slug,
     subcategoria: subcategory.slug,
+    q: query.q,
+    genero: query.genero,
   })
-
-  if (query.q) apiParams.set("q", query.q)
-  if (query.genero) apiParams.set("genero", query.genero)
-
-  const res = await fetch(`${origin}/api/products?${apiParams.toString()}`, {
-    cache: "no-store",
-  })
-  const data = await res.json()
-  const products = (data.productos ?? []).map(apiListToUI)
+  const products = data.map(apiListToUI)
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8">

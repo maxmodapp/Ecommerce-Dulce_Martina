@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation"
 import { ProductDetail } from "@/components/product-detail"
 import { apiDetailToUI } from "@/lib/adapters/product"
-import { getOrigin } from "@/lib/server/origin"
+import { getPublicProductDetail } from "@/lib/public-products"
+
+export const dynamic = "force-dynamic"
 
 export async function generateMetadata({
   params,
@@ -9,15 +11,7 @@ export async function generateMetadata({
   params: Promise<{ productSlug: string }>
 }) {
   const { productSlug } = await params
-  const origin = await getOrigin()
-  const res = await fetch(`${origin}/api/products/${encodeURIComponent(productSlug)}`, {
-    cache: "no-store",
-  })
-
-  if (!res.ok) return { title: "Producto | Dulce Martina" }
-
-  const data = await res.json()
-  const product = data?.producto
+  const product = await getPublicProductDetail(productSlug)
 
   if (!product) return { title: "Producto | Dulce Martina" }
 
@@ -33,16 +27,9 @@ export default async function ProductPage({
   params: Promise<{ productSlug: string }>
 }) {
   const { productSlug } = await params
-  const origin = await getOrigin()
-  const res = await fetch(`${origin}/api/products/${encodeURIComponent(productSlug)}`, {
-    cache: "no-store",
-  })
+  const productData = await getPublicProductDetail(productSlug)
+  if (!productData) notFound()
 
-  if (!res.ok) notFound()
-
-  const data = await res.json()
-  if (!data?.producto) notFound()
-
-  const product = apiDetailToUI(data.producto)
+  const product = apiDetailToUI(productData)
   return <ProductDetail product={product} />
 }

@@ -40,7 +40,9 @@ export default async function MisPedidosPage() {
               pagina.
             </p>
             <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-              <Link href="/productos">Ver productos</Link>
+              <Link href="/productos" prefetch={false}>
+                Ver productos
+              </Link>
             </Button>
           </CardContent>
         </Card>
@@ -93,7 +95,7 @@ export default async function MisPedidosPage() {
                 </div>
 
                 <Button asChild variant="outline" className="shrink-0">
-                  <Link href={`/pedido/${order.id}`}>
+                  <Link href={`/pedido/${order.id}`} prefetch={false}>
                     Ver detalle
                     <ArrowRight className="size-4" />
                   </Link>

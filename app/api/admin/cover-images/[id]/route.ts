@@ -6,6 +6,7 @@ import {
   updateAdminCoverImage,
 } from "@/lib/cover-images"
 import { deleteImageFromCloudinary } from "@/lib/cloudinary"
+import { revalidatePublicHome } from "@/lib/public-cache"
 
 export const runtime = "nodejs"
 
@@ -48,6 +49,7 @@ export async function PATCH(
     const { id } = await params
     const body = await req.json()
     const images = await updateAdminCoverImage(toIntId(id), parseCoverImageInput(body))
+    revalidatePublicHome()
     return NextResponse.json({ images })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)
@@ -80,6 +82,7 @@ export async function DELETE(
     )
 
     const images = await deleteAdminCoverImage(imageId)
+    revalidatePublicHome()
     return NextResponse.json({ images })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { AdminApiError, adminJsonError, requireAdminApiUser } from "@/lib/admin"
 import { createAdminCoverImage, getAdminCoverImages } from "@/lib/cover-images"
 import { deleteImageFromCloudinary, uploadImageToCloudinary } from "@/lib/cloudinary"
+import { revalidatePublicHome } from "@/lib/public-cache"
 
 export const runtime = "nodejs"
 
@@ -84,6 +85,7 @@ export async function POST(req: Request) {
       throw error
     }
 
+    revalidatePublicHome()
     return NextResponse.json({ images }, { status: 201 })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)

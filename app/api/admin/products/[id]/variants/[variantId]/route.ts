@@ -6,6 +6,7 @@ import {
   updateAdminVariant,
   deleteAdminVariant,
 } from "@/lib/admin-products"
+import { revalidatePublicProducts } from "@/lib/public-cache"
 
 export const runtime = "nodejs"
 
@@ -75,6 +76,7 @@ export async function PATCH(
     const input = parseVariantInput(body)
     const variant = await updateAdminVariant(resolvedVariantId, input)
 
+    revalidatePublicProducts()
     return NextResponse.json({ variant })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)
@@ -107,6 +109,7 @@ export async function DELETE(
     }
 
     await deleteAdminVariant(resolvedVariantId)
+    revalidatePublicProducts()
     return NextResponse.json({ ok: true })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)

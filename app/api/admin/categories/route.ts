@@ -6,6 +6,7 @@ import {
   isUniqueConstraintError,
 } from "@/lib/catalog"
 import { deleteImageFromCloudinary, uploadImageToCloudinary } from "@/lib/cloudinary"
+import { revalidatePublicCatalog } from "@/lib/public-cache"
 import { slugify } from "@/lib/utils"
 
 export const runtime = "nodejs"
@@ -102,6 +103,7 @@ export async function POST(req: Request) {
         imagePublicId: uploadedImage?.publicId ?? null,
       })
 
+      revalidatePublicCatalog()
       return NextResponse.json({ category }, { status: 201 })
     } catch (error) {
       if (uploadedImage?.publicId) {

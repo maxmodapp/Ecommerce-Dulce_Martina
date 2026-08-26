@@ -1,8 +1,10 @@
 import "server-only"
 
 import { Prisma } from "@prisma/client"
+import { unstable_cache } from "next/cache"
 import { prisma } from "@/lib/prisma"
 import { apiListToUI } from "@/lib/adapters/product"
+import { PUBLIC_HOME_TAG, PUBLIC_PRODUCTS_TAG } from "@/lib/public-cache"
 import type { AdminHomeSectionItem, Audience, HomeSection, Product } from "@/lib/types"
 import {
   HOME_SECTION_LABELS,
@@ -211,9 +213,19 @@ export function getHomeSectionLabel(section: HomeSection) {
   return HOME_SECTION_LABELS[section]
 }
 
-export async function getHomeSectionProducts(section: HomeSection) {
+async function getHomeSectionProductsUncached(section: HomeSection) {
   const items = await prisma.home_product_sections.findMany(sectionQuery(section, true))
   return items.map((item) => mapSectionProductToUi(item.productos as ProductSectionProductRow))
+}
+
+const getCachedHomeSectionProducts = unstable_cache(
+  getHomeSectionProductsUncached,
+  ["home-section-products"],
+  { tags: [PUBLIC_HOME_TAG, PUBLIC_PRODUCTS_TAG], revalidate: 300 }
+)
+
+export async function getHomeSectionProducts(section: HomeSection) {
+  return getCachedHomeSectionProducts(section)
 }
 
 export async function getHomepageSectionsData() {

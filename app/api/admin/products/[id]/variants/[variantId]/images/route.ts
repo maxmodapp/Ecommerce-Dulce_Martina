@@ -6,6 +6,7 @@ import {
   getAdminProductName,
 } from "@/lib/admin-products"
 import { deleteImageFromCloudinary, uploadImageToCloudinary } from "@/lib/cloudinary"
+import { revalidatePublicProducts } from "@/lib/public-cache"
 
 export const runtime = "nodejs"
 
@@ -89,6 +90,7 @@ export async function POST(
       throw error
     }
 
+    revalidatePublicProducts()
     return NextResponse.json({ image }, { status: 201 })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)

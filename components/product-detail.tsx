@@ -124,17 +124,18 @@ export function ProductDetail({ product }: ProductDetailProps) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
       <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
-        <Link href="/" className="transition-colors hover:text-foreground">
+        <Link href="/" prefetch={false} className="transition-colors hover:text-foreground">
           Inicio
         </Link>
         <span>/</span>
-        <Link href="/productos" className="transition-colors hover:text-foreground">
+        <Link href="/productos" prefetch={false} className="transition-colors hover:text-foreground">
           Productos
         </Link>
         <span>/</span>
         {product.category ? (
           <Link
             href={`/productos/${product.category.slug}`}
+            prefetch={false}
             className="transition-colors hover:text-foreground"
           >
             {product.category.name}
@@ -147,6 +148,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
             <span>/</span>
             <Link
               href={`/productos/${product.category?.slug}/${product.subcategory.slug}`}
+              prefetch={false}
               className="transition-colors hover:text-foreground"
             >
               {product.subcategory.name}

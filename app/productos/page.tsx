@@ -1,6 +1,6 @@
 import { ProductsGrid } from "@/components/products-grid"
-import { getOrigin } from "@/lib/server/origin"
 import { apiListToUI } from "@/lib/adapters/product"
+import { getPublicProductList } from "@/lib/public-products"
 
 export const metadata = {
   title: "Productos | Dulce Martina",
@@ -12,22 +12,15 @@ export default async function ProductosPage({
 }: {
   searchParams: Promise<{ q?: string; genero?: string; categoria?: string; subcategoria?: string }>
 }) {
-  const origin = await getOrigin()
   const params = await searchParams
-  const apiParams = new URLSearchParams()
-
-  if (params.q) apiParams.set("q", params.q)
-  if (params.genero) apiParams.set("genero", params.genero)
-  if (params.categoria) apiParams.set("categoria", params.categoria)
-  if (params.subcategoria) apiParams.set("subcategoria", params.subcategoria)
-
-  const queryString = apiParams.toString()
-  const res = await fetch(`${origin}/api/products${queryString ? `?${queryString}` : ""}`, {
-    cache: "no-store",
+  const data = await getPublicProductList({
+    q: params.q,
+    genero: params.genero,
+    categoria: params.categoria,
+    subcategoria: params.subcategoria,
   })
-  const data = await res.json()
 
-  const products = (data.productos ?? []).map(apiListToUI)
+  const products = data.map(apiListToUI)
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8">

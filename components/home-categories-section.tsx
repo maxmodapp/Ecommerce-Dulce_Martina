@@ -40,6 +40,7 @@ export function HomeCategoriesSection({ catalogMenu }: HomeCategoriesSectionProp
             <Link
               key={category.id}
               href={`/productos/${category.slug}`}
+              prefetch={false}
               className="group relative flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-2xl focus:outline-none focus:ring-2 focus:ring-ring"
             >
               <Image

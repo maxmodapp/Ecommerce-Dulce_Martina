@@ -180,7 +180,9 @@ export function CheckoutForm() {
           asChild
           className="bg-primary text-primary-foreground hover:bg-primary/90"
         >
-          <Link href="/productos">Ver productos</Link>
+          <Link href="/productos" prefetch={false}>
+            Ver productos
+          </Link>
         </Button>
       </div>
     )
@@ -190,6 +192,7 @@ export function CheckoutForm() {
     <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8">
       <Link
         href="/productos"
+        prefetch={false}
         className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" />

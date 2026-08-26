@@ -24,7 +24,7 @@ export function Navbar({ catalogMenu }: NavbarProps) {
   const pathname = usePathname()
   const { totalItems } = useCart()
   const { open: openCart } = useCartDrawer()
-  const { user, logout } = useAuth()
+  const { user, status, logout } = useAuth()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [mobileSubOpen, setMobileSubOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
@@ -102,6 +102,7 @@ export function Navbar({ catalogMenu }: NavbarProps) {
           <div className="pointer-events-auto hidden items-center gap-6 md:flex">
             <Link
               href="/"
+              prefetch={false}
               className={cn(desktopLinkClass, pathname === "/" && "text-white")}
             >
               Inicio
@@ -116,6 +117,7 @@ export function Navbar({ catalogMenu }: NavbarProps) {
             >
               <Link
                 href="/productos"
+                prefetch={false}
                 className={cn(
                   desktopLinkClass,
                   "flex items-center gap-1",
@@ -136,6 +138,7 @@ export function Navbar({ catalogMenu }: NavbarProps) {
 
             <Link
               href="/nosotros"
+              prefetch={false}
               className={cn(desktopLinkClass, pathname === "/nosotros" && "text-white")}
             >
               Nosotros
@@ -144,6 +147,7 @@ export function Navbar({ catalogMenu }: NavbarProps) {
             {user?.role === "ADMIN" ? (
               <Link
                 href="/admin"
+                prefetch={false}
                 className={cn(desktopLinkClass, pathname.startsWith("/admin") && "text-white")}
               >
                 Admin
@@ -201,6 +205,7 @@ export function Navbar({ catalogMenu }: NavbarProps) {
         <div className="flex h-full items-center justify-center">
           <Link
             href="/"
+            prefetch={false}
             className={cn(
               "relative z-20 flex min-h-14 min-w-40 items-center justify-center px-6 transition-all duration-300 sm:min-w-52",
               isScrolled ? "-translate-y-0" : "translate-y-0 lg:-translate-y-0"
@@ -252,22 +257,21 @@ export function Navbar({ catalogMenu }: NavbarProps) {
         </div>
       )}
 
-      <div
-        onMouseEnter={() => {
-          setProductsMenuOpen(true)
-          setSearchOpen(false)
-        }}
-        className={cn(
-          "absolute left-0 right-0 top-full z-40 hidden border-y border-border bg-white text-foreground shadow-sm transition-all md:block",
-          productsMenuOpen ? "visible opacity-100" : "invisible opacity-0"
-        )}
-      >
-        <CatalogMenuContent
-          catalogMenu={catalogMenu}
-          activeMenuFilter={activeMenuFilter}
-          onFilterChange={setActiveMenuFilter}
-        />
-      </div>
+      {productsMenuOpen ? (
+        <div
+          onMouseEnter={() => {
+            setProductsMenuOpen(true)
+            setSearchOpen(false)
+          }}
+          className="absolute left-0 right-0 top-full z-40 hidden border-y border-border bg-white text-foreground shadow-sm md:block"
+        >
+          <CatalogMenuContent
+            catalogMenu={catalogMenu}
+            activeMenuFilter={activeMenuFilter}
+            onFilterChange={setActiveMenuFilter}
+          />
+        </div>
+      ) : null}
 
       {mobileOpen && (
         <>
@@ -283,6 +287,7 @@ export function Navbar({ catalogMenu }: NavbarProps) {
                 <div className="flex flex-col gap-1">
                   <Link
                     href="/"
+                    prefetch={false}
                     onClick={() => setMobileOpen(false)}
                     className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
                   >
@@ -318,6 +323,7 @@ export function Navbar({ catalogMenu }: NavbarProps) {
 
                   <Link
                     href="/nosotros"
+                    prefetch={false}
                     onClick={() => setMobileOpen(false)}
                     className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
                   >
@@ -327,6 +333,7 @@ export function Navbar({ catalogMenu }: NavbarProps) {
                   {user?.role === "ADMIN" ? (
                     <Link
                       href="/admin"
+                      prefetch={false}
                       onClick={() => setMobileOpen(false)}
                       className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
                     >
@@ -334,10 +341,15 @@ export function Navbar({ catalogMenu }: NavbarProps) {
                     </Link>
                   ) : null}
 
-                  {user ? (
+                  {status === "loading" ? (
+                    <div className="rounded-md px-3 py-2.5 text-sm font-medium text-white/60">
+                      Cargando cuenta...
+                    </div>
+                  ) : user ? (
                     <>
                       <Link
                         href="/mi-cuenta"
+                        prefetch={false}
                         onClick={() => setMobileOpen(false)}
                         className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
                       >
@@ -345,6 +357,7 @@ export function Navbar({ catalogMenu }: NavbarProps) {
                       </Link>
                       <Link
                         href="/mis-pedidos"
+                        prefetch={false}
                         onClick={() => setMobileOpen(false)}
                         className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
                       >
@@ -361,6 +374,7 @@ export function Navbar({ catalogMenu }: NavbarProps) {
                     <>
                       <Link
                         href="/login"
+                        prefetch={false}
                         onClick={() => setMobileOpen(false)}
                         className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
                       >
@@ -368,6 +382,7 @@ export function Navbar({ catalogMenu }: NavbarProps) {
                       </Link>
                       <Link
                         href="/registro"
+                        prefetch={false}
                         onClick={() => setMobileOpen(false)}
                         className="rounded-md px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
                       >

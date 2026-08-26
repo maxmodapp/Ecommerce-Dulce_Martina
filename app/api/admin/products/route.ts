@@ -6,6 +6,7 @@ import {
   getAdminProducts,
   isUniqueConstraintError,
 } from "@/lib/admin-products"
+import { revalidatePublicProducts } from "@/lib/public-cache"
 
 export const runtime = "nodejs"
 
@@ -82,6 +83,7 @@ export async function POST(req: Request) {
     const input = parseProductInput(body)
     const product = await createAdminProduct(input)
 
+    revalidatePublicProducts()
     return NextResponse.json({ product }, { status: 201 })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)

@@ -5,6 +5,7 @@ import {
   createAdminVariant,
   isUniqueConstraintError,
 } from "@/lib/admin-products"
+import { revalidatePublicProducts } from "@/lib/public-cache"
 
 export const runtime = "nodejs"
 
@@ -73,6 +74,7 @@ export async function POST(
     const input = parseVariantInput(body)
     const variant = await createAdminVariant(productId, input)
 
+    revalidatePublicProducts()
     return NextResponse.json({ variant }, { status: 201 })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)

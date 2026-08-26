@@ -6,6 +6,7 @@ import {
   moveHomeSectionItem,
   removeHomeSectionItem,
 } from "@/lib/home-sections"
+import { revalidatePublicHome } from "@/lib/public-cache"
 
 export const runtime = "nodejs"
 
@@ -68,6 +69,7 @@ export async function PATCH(
     }
 
     const items = await getAdminHomeSectionItems(section)
+    revalidatePublicHome()
     return NextResponse.json({ items })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)

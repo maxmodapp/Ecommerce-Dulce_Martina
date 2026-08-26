@@ -106,7 +106,9 @@ export default async function MiCuentaPage() {
                   </div>
 
                   <Button asChild variant="outline" className="w-full sm:w-auto">
-                    <Link href="/mis-pedidos">Ver mis pedidos</Link>
+                    <Link href="/mis-pedidos" prefetch={false}>
+                      Ver mis pedidos
+                    </Link>
                   </Button>
                 </>
               ) : (
@@ -115,7 +117,9 @@ export default async function MiCuentaPage() {
                     Todavia no tenes pedidos asociados a tu cuenta.
                   </p>
                   <Button asChild variant="outline" className="w-full sm:w-auto">
-                    <Link href="/productos">Ir a comprar</Link>
+                    <Link href="/productos" prefetch={false}>
+                      Ir a comprar
+                    </Link>
                   </Button>
                 </>
               )}

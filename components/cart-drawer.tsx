@@ -80,7 +80,9 @@ export function CartDrawer() {
               onClick={close}
               className="border-border text-foreground hover:bg-secondary"
             >
-              <Link href="/productos">Ver productos</Link>
+              <Link href="/productos" prefetch={false}>
+                Ver productos
+              </Link>
             </Button>
           </div>
         ) : (
@@ -235,7 +237,9 @@ export function CartDrawer() {
                 className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                 onClick={close}
               >
-                <Link href="/checkout">Finalizar compra</Link>
+                <Link href="/checkout" prefetch={false}>
+                  Finalizar compra
+                </Link>
               </Button>
             </SheetFooter>
           </>

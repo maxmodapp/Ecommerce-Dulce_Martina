@@ -1,7 +1,9 @@
 import "server-only"
 
 import { Prisma } from "@prisma/client"
+import { unstable_cache } from "next/cache"
 import { prisma } from "@/lib/prisma"
+import { PUBLIC_CATALOG_TAG } from "@/lib/public-cache"
 import type {
   AdminCategoryOption,
   AdminSubcategoryOption,
@@ -153,7 +155,7 @@ export async function getAdminSubcategoryOptions() {
   return getAdminSubcategories()
 }
 
-export async function getCatalogMenu() {
+async function getCatalogMenuUncached() {
   const categories = await prisma.categorias.findMany({
     where: { active: true },
     orderBy: [{ sort_order: "asc" }, { nombre: "asc" }, { id: "asc" }],
@@ -180,6 +182,16 @@ export async function getCatalogMenu() {
       } as SubcategoryRow)
     ),
   }))
+}
+
+const getCachedCatalogMenu = unstable_cache(
+  getCatalogMenuUncached,
+  ["catalog-menu"],
+  { tags: [PUBLIC_CATALOG_TAG], revalidate: 300 }
+)
+
+export async function getCatalogMenu() {
+  return getCachedCatalogMenu()
 }
 
 export async function getCategoryBySlug(slug: string) {

@@ -6,6 +6,7 @@ import {
   isAudience,
   isUniqueConstraintError,
 } from "@/lib/catalog"
+import { revalidatePublicCatalog } from "@/lib/public-cache"
 import { slugify } from "@/lib/utils"
 
 export const runtime = "nodejs"
@@ -65,6 +66,7 @@ export async function POST(req: Request) {
     await requireAdminApiUser()
     const body = await req.json()
     const subcategory = await createAdminSubcategory(parseSubcategoryInput(body))
+    revalidatePublicCatalog()
     return NextResponse.json({ subcategory }, { status: 201 })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)

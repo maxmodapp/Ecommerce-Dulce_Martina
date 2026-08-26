@@ -2,7 +2,7 @@ import { notFound, redirect } from "next/navigation"
 import { ProductsGrid } from "@/components/products-grid"
 import { apiListToUI } from "@/lib/adapters/product"
 import { getCategoryBySlug } from "@/lib/catalog"
-import { getOrigin } from "@/lib/server/origin"
+import { getPublicProductDetail, getPublicProductList } from "@/lib/public-products"
 
 export async function generateMetadata({
   params,
@@ -29,14 +29,11 @@ export default async function CategoryProductsPage({
 }) {
   const { category: categorySlug } = await params
   const category = await getCategoryBySlug(categorySlug)
-  const origin = await getOrigin()
 
   if (!category || category.active === false) {
-    const legacyProduct = await fetch(`${origin}/api/products/${encodeURIComponent(categorySlug)}`, {
-      cache: "no-store",
-    })
+    const legacyProduct = await getPublicProductDetail(categorySlug)
 
-    if (legacyProduct.ok) {
+    if (legacyProduct) {
       redirect(`/producto/${categorySlug}`)
     }
 
@@ -44,16 +41,12 @@ export default async function CategoryProductsPage({
   }
 
   const query = await searchParams
-  const apiParams = new URLSearchParams({ categoria: category.slug })
-
-  if (query.q) apiParams.set("q", query.q)
-  if (query.genero) apiParams.set("genero", query.genero)
-
-  const res = await fetch(`${origin}/api/products?${apiParams.toString()}`, {
-    cache: "no-store",
+  const data = await getPublicProductList({
+    categoria: category.slug,
+    q: query.q,
+    genero: query.genero,
   })
-  const data = await res.json()
-  const products = (data.productos ?? []).map(apiListToUI)
+  const products = data.map(apiListToUI)
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 lg:px-8">

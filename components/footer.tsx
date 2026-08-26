@@ -23,7 +23,7 @@ export function Footer({ catalogMenu }: FooterProps) {
         <div className="grid gap-8 md:grid-cols-4">
           {/* Brand */}
           <div className="flex flex-col gap-4">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" prefetch={false} className="flex items-center gap-2">
               <Image
                 src="/images/logo.png"
                 alt="Dulce Martina Lingerie"
@@ -50,6 +50,7 @@ export function Footer({ catalogMenu }: FooterProps) {
                 <li key={category.id}>
                   <Link
                     href={`/productos/${category.slug}`}
+                    prefetch={false}
                     className="text-sm text-muted-foreground transition-colors hover:text-primary"
                   >
                     {category.name}
@@ -70,6 +71,7 @@ export function Footer({ catalogMenu }: FooterProps) {
                 <li>
                   <Link
                     href="/productos"
+                    prefetch={false}
                     className="text-sm text-muted-foreground transition-colors hover:text-primary"
                   >
                     Ver todo
@@ -88,6 +90,7 @@ export function Footer({ catalogMenu }: FooterProps) {
               <li>
                 <Link
                   href="/nosotros"
+                  prefetch={false}
                   className="text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
                   Nosotros
@@ -96,6 +99,7 @@ export function Footer({ catalogMenu }: FooterProps) {
               <li>
                 <Link
                   href="/nosotros"
+                  prefetch={false}
                   className="text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
                   Como comprar
@@ -104,6 +108,7 @@ export function Footer({ catalogMenu }: FooterProps) {
               <li>
                 <Link
                   href="/nosotros"
+                  prefetch={false}
                   className="text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
                   Contacto
@@ -112,6 +117,7 @@ export function Footer({ catalogMenu }: FooterProps) {
               <li>
                 <Link
                   href="/consultar-pedido"
+                  prefetch={false}
                   className="text-sm text-muted-foreground transition-colors hover:text-primary"
                 >
                   Consultar pedido

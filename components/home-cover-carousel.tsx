@@ -20,7 +20,7 @@ function CoverSlide({ image }: { image: CoverImageItem }) {
 
   if (image.href) {
     return (
-      <Link href={image.href} className="block h-full w-full">
+      <Link href={image.href} prefetch={false} className="block h-full w-full">
         {content}
       </Link>
     )

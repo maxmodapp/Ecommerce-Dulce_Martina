@@ -33,6 +33,7 @@ export function HomeProductCarousel({
         </div>
         <Link
           href="/productos"
+          prefetch={false}
           className="hidden items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-foreground md:flex"
         >
           Ver todo
@@ -66,7 +67,9 @@ export function HomeProductCarousel({
           variant="outline"
           className="border-border text-foreground hover:bg-secondary"
         >
-          <Link href="/productos">Ver todos los productos</Link>
+          <Link href="/productos" prefetch={false}>
+            Ver todos los productos
+          </Link>
         </Button>
       </div>
     </div>

@@ -67,6 +67,7 @@ export function CatalogMenuContent({
 
         <Link
           href={withAudienceQuery("/productos", activeMenuFilter)}
+          prefetch={false}
           onClick={onNavigate}
           className="block rounded-md px-3 py-2 text-sm text-white/80 transition-colors hover:bg-white/10 hover:text-white"
         >
@@ -88,6 +89,7 @@ export function CatalogMenuContent({
               <div key={category.id} className="space-y-1">
                 <Link
                   href={categoryHref}
+                  prefetch={false}
                   onClick={onNavigate}
                   className="block rounded-md px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white transition-colors hover:bg-white/10"
                 >
@@ -95,6 +97,7 @@ export function CatalogMenuContent({
                 </Link>
                 <Link
                   href={categoryHref}
+                  prefetch={false}
                   onClick={onNavigate}
                   className="block rounded-md px-6 py-2 text-sm text-white/72 transition-colors hover:bg-white/10 hover:text-white"
                 >
@@ -107,6 +110,7 @@ export function CatalogMenuContent({
                       `/productos/${category.slug}/${subcategory.slug}`,
                       activeMenuFilter
                     )}
+                    prefetch={false}
                     onClick={onNavigate}
                     className="block rounded-md px-6 py-2 text-sm text-white/72 transition-colors hover:bg-white/10 hover:text-white"
                   >
@@ -157,6 +161,7 @@ export function CatalogMenuContent({
               <div key={category.id} className="space-y-3">
                 <Link
                   href={categoryHref}
+                  prefetch={false}
                   onClick={onNavigate}
                   className="block text-xs font-semibold uppercase tracking-[0.18em] text-foreground transition-colors hover:text-muted-foreground"
                 >
@@ -165,6 +170,7 @@ export function CatalogMenuContent({
                 <div className="space-y-2">
                   <Link
                     href={categoryHref}
+                    prefetch={false}
                     onClick={onNavigate}
                     className="block text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
@@ -177,6 +183,7 @@ export function CatalogMenuContent({
                         `/productos/${category.slug}/${subcategory.slug}`,
                         activeMenuFilter
                       )}
+                      prefetch={false}
                       onClick={onNavigate}
                       className="block text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >

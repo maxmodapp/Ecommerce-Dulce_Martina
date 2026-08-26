@@ -7,6 +7,7 @@ import {
   updateAdminCategory,
 } from "@/lib/catalog"
 import { deleteImageFromCloudinary, uploadImageToCloudinary } from "@/lib/cloudinary"
+import { revalidatePublicCatalog } from "@/lib/public-cache"
 import { slugify } from "@/lib/utils"
 
 export const runtime = "nodejs"
@@ -124,6 +125,7 @@ export async function PATCH(
         await deleteImageFromCloudinary(currentCategory.imagePublicId).catch(() => null)
       }
 
+      revalidatePublicCatalog()
       return NextResponse.json({ category })
     } catch (error) {
       if (uploadedImage?.publicId) {
@@ -161,6 +163,7 @@ export async function DELETE(
       await deleteImageFromCloudinary(currentCategory.imagePublicId).catch(() => null)
     }
 
+    revalidatePublicCatalog()
     return NextResponse.json({ ok: true })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)

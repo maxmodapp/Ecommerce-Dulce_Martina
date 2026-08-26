@@ -16,7 +16,7 @@ import {
 
 export function AccountMenu() {
   const router = useRouter()
-  const { user, logout } = useAuth()
+  const { user, status, logout } = useAuth()
 
   async function handleLogout() {
     await logout()
@@ -38,7 +38,11 @@ export function AccountMenu() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-56">
-        {user ? (
+        {status === "loading" ? (
+          <DropdownMenuLabel className="text-sm font-normal text-muted-foreground">
+            Cargando cuenta...
+          </DropdownMenuLabel>
+        ) : user ? (
           <>
             <DropdownMenuLabel className="space-y-0.5">
               <p className="truncate text-sm font-medium text-foreground">{user.name}</p>
@@ -46,13 +50,13 @@ export function AccountMenu() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href="/mi-cuenta">
+              <Link href="/mi-cuenta" prefetch={false}>
                 <User className="size-4" />
                 Mi cuenta
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/mis-pedidos">
+              <Link href="/mis-pedidos" prefetch={false}>
                 <Package className="size-4" />
                 Mis pedidos
               </Link>
@@ -72,13 +76,13 @@ export function AccountMenu() {
         ) : (
           <>
             <DropdownMenuItem asChild>
-              <Link href="/login">
+              <Link href="/login" prefetch={false}>
                 <LogIn className="size-4" />
                 Iniciar sesion
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/registro">
+              <Link href="/registro" prefetch={false}>
                 <UserPlus className="size-4" />
                 Registrarse
               </Link>

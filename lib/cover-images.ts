@@ -1,7 +1,9 @@
 import "server-only"
 
 import { Prisma } from "@prisma/client"
+import { unstable_cache } from "next/cache"
 import { prisma } from "@/lib/prisma"
+import { PUBLIC_HOME_TAG } from "@/lib/public-cache"
 import type { CoverImageItem } from "@/lib/types"
 
 type CoverImageInput = {
@@ -81,7 +83,7 @@ export async function getAdminCoverImageById(id: string | number) {
   return image ? mapCoverImage(image) : null
 }
 
-export async function getPublicCoverImages() {
+async function getPublicCoverImagesUncached() {
   try {
     const images = await getAdminCoverImages()
     return images.length > 0 ? images : fallbackCoverImages
@@ -89,6 +91,16 @@ export async function getPublicCoverImages() {
     if (isMissingCoverImagesTable(error)) return fallbackCoverImages
     throw error
   }
+}
+
+const getCachedPublicCoverImages = unstable_cache(
+  getPublicCoverImagesUncached,
+  ["public-cover-images"],
+  { tags: [PUBLIC_HOME_TAG], revalidate: 300 }
+)
+
+export async function getPublicCoverImages() {
+  return getCachedPublicCoverImages()
 }
 
 export async function createAdminCoverImage(input: CoverImageInput) {

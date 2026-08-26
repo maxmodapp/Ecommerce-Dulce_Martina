@@ -8,6 +8,7 @@ import {
   updateAdminVariantImage,
 } from "@/lib/admin-products"
 import { deleteImageFromCloudinary } from "@/lib/cloudinary"
+import { revalidatePublicProducts } from "@/lib/public-cache"
 
 export const runtime = "nodejs"
 
@@ -67,6 +68,7 @@ export async function PATCH(
     const input = parseImageInput(body)
     const image = await updateAdminVariantImage(resolvedImageId, input)
 
+    revalidatePublicProducts()
     return NextResponse.json({ image })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)
@@ -104,6 +106,7 @@ export async function DELETE(
     }
 
     await deleteAdminVariantImage(resolvedImageId)
+    revalidatePublicProducts()
     return NextResponse.json({ ok: true })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)

@@ -136,7 +136,7 @@ export default function NosotrosPage() {
               size="lg"
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              <Link href="/productos">
+              <Link href="/productos" prefetch={false}>
                 Ver productos
                 <ArrowRight className="ml-2 size-4" />
               </Link>

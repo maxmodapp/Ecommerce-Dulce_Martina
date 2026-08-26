@@ -8,6 +8,7 @@ import {
   updateAdminProduct,
 } from "@/lib/admin-products"
 import { isHomeSection, syncProductHomeSections } from "@/lib/home-sections"
+import { revalidatePublicProducts } from "@/lib/public-cache"
 import type { HomeSection } from "@/lib/types"
 
 export const runtime = "nodejs"
@@ -136,6 +137,7 @@ export async function PATCH(
       (body as any)?.price == null
     ) {
       const product = await setAdminProductActive(resolvedId, (body as any).active)
+      revalidatePublicProducts()
       return NextResponse.json({ product })
     }
 
@@ -145,6 +147,7 @@ export async function PATCH(
 
     await syncProductHomeSections(resolvedId, homeSections)
 
+    revalidatePublicProducts()
     return NextResponse.json({ product })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)

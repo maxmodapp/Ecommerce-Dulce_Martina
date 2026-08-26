@@ -7,6 +7,7 @@ import {
   isUniqueConstraintError,
   updateAdminSubcategory,
 } from "@/lib/catalog"
+import { revalidatePublicCatalog } from "@/lib/public-cache"
 import { slugify } from "@/lib/utils"
 
 export const runtime = "nodejs"
@@ -69,6 +70,7 @@ export async function PATCH(
     const { id } = await params
     const body = await req.json()
     const subcategory = await updateAdminSubcategory(toBigIntId(id), parseSubcategoryInput(body))
+    revalidatePublicCatalog()
     return NextResponse.json({ subcategory })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)
@@ -100,6 +102,7 @@ export async function DELETE(
     await requireAdminApiUser()
     const { id } = await params
     await deleteAdminSubcategory(toBigIntId(id))
+    revalidatePublicCatalog()
     return NextResponse.json({ ok: true })
   } catch (error: any) {
     if (error instanceof AdminApiError) return adminJsonError(error)
