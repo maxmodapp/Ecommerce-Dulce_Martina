@@ -34,7 +34,7 @@ const DELIVERY_OPTIONS: Array<{
   {
     value: "DELIVERY",
     title: DELIVERY_LABEL,
-    description: "Costo estimado. Luego se puede ajustar mejor por código postal.",
+    description: "Costo estimado.",
   },
   {
     value: "PICKUP",
